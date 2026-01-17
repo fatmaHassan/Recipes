@@ -1,0 +1,5 @@
+/* 
+ * Development fallback CSS
+ * In production with Node 20+, this will be replaced by Vite build
+ * For now, Tailwind CSS is loaded via CDN in the layout
+ */
