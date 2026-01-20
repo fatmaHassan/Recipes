@@ -16,9 +16,16 @@
         @php
             $manifestPath = public_path('build/manifest.json');
             $cssPath = public_path('build/app.css');
-            $hasBuiltAssets = file_exists($manifestPath) && 
-                             file_exists($cssPath) && 
-                             filesize($cssPath) > 100;
+            $hasBuiltAssets = false;
+            
+            if (file_exists($manifestPath) && file_exists($cssPath)) {
+                $cssContent = file_get_contents($cssPath);
+                // Check if CSS file contains actual CSS (not just a comment)
+                // Look for CSS rules (contains '{' or '@' directives like @media, @keyframes, etc.)
+                $hasBuiltAssets = filesize($cssPath) > 500 && 
+                                 (strpos($cssContent, '{') !== false || 
+                                  preg_match('/@(media|keyframes|supports|import)/', $cssContent));
+            }
         @endphp
         
         @if($hasBuiltAssets)
