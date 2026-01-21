@@ -53,26 +53,124 @@ class RecipeService
     }
     
     /**
-     * Get suggested ingredient alternatives for generic terms
+     * Get all ingredients from TheMealDB
+     */
+    public function getAllIngredients(): array
+    {
+        $cacheKey = 'themealdb_all_ingredients';
+        
+        return Cache::remember($cacheKey, 86400, function () { // Cache for 24 hours
+            try {
+                $response = Http::get($this->baseUrl . 'list.php', [
+                    'i' => 'list'
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $meals = $data['meals'] ?? [];
+                    
+                    // Extract ingredient names
+                    $ingredients = array_map(function ($item) {
+                        return $item['strIngredient'] ?? '';
+                    }, $meals);
+                    
+                    return array_filter($ingredients); // Remove empty values
+                }
+
+                Log::warning('TheMealDB API request failed for ingredients list', [
+                    'status' => $response->status()
+                ]);
+
+                return [];
+            } catch (\Exception $e) {
+                Log::error('Error fetching ingredients list from TheMealDB', [
+                    'error' => $e->getMessage()
+                ]);
+
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Search ingredients by query (for autocomplete)
+     */
+    public function searchIngredients(string $query, int $limit = 10): array
+    {
+        $allIngredients = $this->getAllIngredients();
+        $queryLower = strtolower(trim($query));
+        
+        if (empty($queryLower)) {
+            return array_slice($allIngredients, 0, $limit);
+        }
+        
+        $matches = [];
+        $exactMatches = [];
+        $startsWithMatches = [];
+        $containsMatches = [];
+        
+        foreach ($allIngredients as $ingredient) {
+            $ingredientLower = strtolower($ingredient);
+            
+            if ($ingredientLower === $queryLower) {
+                $exactMatches[] = $ingredient;
+            } elseif (strpos($ingredientLower, $queryLower) === 0) {
+                $startsWithMatches[] = $ingredient;
+            } elseif (strpos($ingredientLower, $queryLower) !== false) {
+                $containsMatches[] = $ingredient;
+            }
+        }
+        
+        // Combine matches in order of relevance
+        $matches = array_merge($exactMatches, $startsWithMatches, $containsMatches);
+        
+        return array_slice($matches, 0, $limit);
+    }
+
+    /**
+     * Get suggested ingredient alternatives for generic terms or similar ingredients
      */
     public function getIngredientSuggestions(string $ingredient): array
     {
-        $suggestions = [
-            'meat' => ['chicken', 'beef', 'pork', 'lamb', 'turkey'],
-            'chicken' => ['chicken breast', 'chicken thigh', 'chicken wing'],
-            'beef' => ['ground beef', 'beef steak', 'beef roast'],
-            'fish' => ['salmon', 'tuna', 'cod', 'tilapia'],
-            'vegetable' => ['carrot', 'onion', 'tomato', 'potato', 'broccoli'],
-            'dairy' => ['milk', 'cheese', 'butter', 'cream'],
-        ];
+        // First try to get suggestions from TheMealDB ingredients
+        $allIngredients = $this->getAllIngredients();
+        $ingredientLower = strtolower(trim($ingredient));
         
-        $ingredientLower = strtolower($ingredient);
-        
-        if (isset($suggestions[$ingredientLower])) {
-            return $suggestions[$ingredientLower];
+        // Find similar ingredients using fuzzy matching
+        $suggestions = [];
+        foreach ($allIngredients as $dbIngredient) {
+            $dbIngredientLower = strtolower($dbIngredient);
+            
+            // Check if it's a close match (contains the search term or vice versa)
+            if ($dbIngredientLower !== $ingredientLower) {
+                if (strpos($dbIngredientLower, $ingredientLower) !== false || 
+                    strpos($ingredientLower, $dbIngredientLower) !== false ||
+                    similar_text($ingredientLower, $dbIngredientLower) / max(strlen($ingredientLower), strlen($dbIngredientLower)) > 0.6) {
+                    $suggestions[] = $dbIngredient;
+                }
+            }
         }
         
-        return [];
+        // Limit to top 5 suggestions
+        $suggestions = array_slice($suggestions, 0, 5);
+        
+        // Fallback to hardcoded suggestions if no matches found
+        if (empty($suggestions)) {
+            $hardcodedSuggestions = [
+                'meat' => ['chicken', 'beef', 'pork', 'lamb', 'turkey'],
+                'chicken' => ['chicken breast', 'chicken thigh', 'chicken wing'],
+                'beef' => ['ground beef', 'beef steak', 'beef roast'],
+                'fish' => ['salmon', 'tuna', 'cod', 'tilapia'],
+                'vegetable' => ['carrot', 'onion', 'tomato', 'potato', 'broccoli'],
+                'dairy' => ['milk', 'cheese', 'butter', 'cream'],
+            ];
+            
+            if (isset($hardcodedSuggestions[$ingredientLower])) {
+                return $hardcodedSuggestions[$ingredientLower];
+            }
+        }
+        
+        return $suggestions;
     }
 
     /**

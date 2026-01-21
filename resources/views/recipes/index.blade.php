@@ -15,11 +15,20 @@
                 </div>
             @endif
 
-            @if(count($recipes) > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($recipes as $recipe)
+            @if($paginatedRecipes->count() > 0)
+                <div class="mb-4 text-gray-600">
+                    Showing {{ $paginatedRecipes->firstItem() }} to {{ $paginatedRecipes->lastItem() }} of {{ $paginatedRecipes->total() }} recipes
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    @foreach($paginatedRecipes as $recipe)
                         <x-recipe-card :recipe="$recipe" />
                     @endforeach
+                </div>
+
+                <!-- Pagination Links -->
+                <div class="mt-8">
+                    {{ $paginatedRecipes->links() }}
                 </div>
             @else
                 <div class="card p-8 text-center">

@@ -20,14 +20,16 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Ingredients
+    // Ingredients - specific routes must come before resource route
+    Route::get('/ingredients/search', [IngredientController::class, 'search'])->name('ingredients.search');
+    Route::post('/ingredients/check', [IngredientController::class, 'check'])->name('ingredients.check');
     Route::resource('ingredients', IngredientController::class);
     
     // Allergies
     Route::resource('allergies', AllergyController::class);
     
     // Recipes
-    Route::post('/recipes/search', [RecipeController::class, 'search'])->name('recipes.search');
+    Route::match(['get', 'post'], '/recipes/search', [RecipeController::class, 'search'])->name('recipes.search');
     Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('recipes.show');
     Route::post('/recipes/save', [RecipeController::class, 'save'])->name('recipes.save');
     Route::post('/recipes/{recipeId}/favorite', [RecipeController::class, 'toggleFavorite'])->name('recipes.favorite');

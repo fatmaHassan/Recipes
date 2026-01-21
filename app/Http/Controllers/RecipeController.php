@@ -6,6 +6,8 @@ use App\Models\SavedRecipe;
 use App\Services\RecipeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class RecipeController extends Controller
 {
@@ -21,6 +23,19 @@ class RecipeController extends Controller
      */
     public function search(Request $request)
     {
+        // If POST request, redirect to GET with ingredients as query parameters
+        if ($request->isMethod('post')) {
+            $request->validate([
+                'ingredients' => 'required|array|min:1',
+                'ingredients.*' => 'required|string',
+            ]);
+
+            return redirect()->route('recipes.search', [
+                'ingredients' => $request->ingredients
+            ]);
+        }
+
+        // Handle GET request (for pagination)
         $request->validate([
             'ingredients' => 'required|array|min:1',
             'ingredients.*' => 'required|string',
@@ -47,7 +62,23 @@ class RecipeController extends Controller
             $recipes = $this->recipeService->filterByAllergies($recipes, $allergies);
         }
 
-        return view('recipes.index', compact('recipes', 'ingredients', 'suggestions'));
+        // Paginate the recipes array
+        $perPage = 12; // Number of recipes per page
+        $currentPage = Paginator::resolveCurrentPage();
+        $currentItems = array_slice($recipes, ($currentPage - 1) * $perPage, $perPage);
+        
+        $paginatedRecipes = new LengthAwarePaginator(
+            $currentItems,
+            count($recipes),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(), // Preserve query parameters (ingredients)
+            ]
+        );
+
+        return view('recipes.index', compact('paginatedRecipes', 'ingredients', 'suggestions'));
     }
 
     /**
