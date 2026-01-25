@@ -35,3 +35,6 @@ cypress/screenshots/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+#IDE
+/.cursor

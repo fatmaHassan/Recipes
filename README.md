@@ -73,11 +73,39 @@ For production deployments, ensure Node.js 20+ is available for proper asset bui
 ```bash
 php artisan test
 ```
+or
+```bash
+composer test
+```
+
+### Playwright E2E Tests
+```bash
+npm run test:e2e
+```
+
+For more Playwright testing options, see [tests/e2e/README.md](tests/e2e/README.md).
 
 ### Cypress Tests (requires Node.js 20+)
 ```bash
 npm run cypress:open
 ```
+
+## CI/CD
+
+This project includes GitHub Actions workflows that automatically run tests on push and pull requests:
+
+- **PHPUnit Tests**: Runs all PHP unit and feature tests
+- **Playwright E2E Tests**: Runs end-to-end tests in Chromium browser
+
+The workflow is configured in `.github/workflows/tests.yml` and will:
+1. Set up PHP 8.2 and Node.js 20
+2. Install dependencies
+3. Set up the database and run migrations
+4. Run PHPUnit tests
+5. Run Playwright E2E tests
+6. Upload test reports and artifacts on failure
+
+Test artifacts (screenshots, videos, HTML reports) are automatically uploaded when tests fail and are available for 30 days.
 
 ## License
 
