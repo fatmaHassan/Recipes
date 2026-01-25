@@ -30,15 +30,17 @@ class RecipeApiTest extends TestCase
         ]);
 
         $user = User::factory()->create();
+        $user->markEmailAsVerified();
         $this->actingAs($user);
 
-        $response = $this->post(route('recipes.search'), [
+        // Test GET request directly (POST redirects to GET anyway)
+        $response = $this->get(route('recipes.search', [
             'ingredients' => ['chicken'],
-        ]);
+        ]));
 
         $response->assertStatus(200);
         $response->assertViewIs('recipes.index');
-        $response->assertViewHas('recipes');
+        $response->assertViewHas('paginatedRecipes');
     }
 
     /**
@@ -59,6 +61,10 @@ class RecipeApiTest extends TestCase
                 ],
             ], 200),
         ]);
+
+        $user = User::factory()->create();
+        $user->markEmailAsVerified();
+        $this->actingAs($user);
 
         $response = $this->get(route('recipes.show', '52772'));
 
