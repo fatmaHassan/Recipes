@@ -117,3 +117,32 @@ jobs:
           name: playwright-test-results
           path: test-results/
           retention-days: 30
+
+  api-tests:
+    name: API Tests (Newman)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run API tests with Newman
+        run: npm run test:api
+
+      - name: Upload Newman report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: postman/reports/
+          retention-days: 30
+          if-no-files-found: ignore
