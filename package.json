@@ -11,7 +11,9 @@
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:headed": "playwright test --headed",
-        "test:e2e:debug": "playwright test --debug"
+        "test:e2e:debug": "playwright test --debug",
+        "test:api": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json",
+        "test:api:report": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json --reporters cli,html --reporter-html-export postman/reports/newman-report.html"
     },
     "devDependencies": {
         "@playwright/test": "^1.57.0",
@@ -23,6 +25,7 @@
         "concurrently": "^9.0.1",
         "cypress": "^13.7.0",
         "laravel-vite-plugin": "^2.0.0",
+        "newman": "^6.1.0",
         "postcss": "^8.4.31",
         "tailwindcss": "^3.1.0",
         "vite": "^7.0.7"

@@ -1,0 +1,8 @@
+# Newman test reports (only ignore reports, not collection files)
+reports/
+*.html
+reports/*.xml
+reports/*.json
+
+# Postman local files
+.postman/

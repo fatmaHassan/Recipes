@@ -1,0 +1,27 @@
+{
+	"id": "recipes-environment",
+	"name": "Recipes API - Production",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "https://www.themealdb.com/api/json/v1/1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "ingredient",
+			"value": "chicken",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "recipe_id",
+			"value": "52772",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-01-29T00:00:00.000Z",
+	"_postman_exported_using": "Postman/10.0.0"
+}
