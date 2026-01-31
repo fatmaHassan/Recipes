@@ -90,6 +90,19 @@ For more Playwright testing options, see [tests/e2e/README.md](tests/e2e/README.
 npm run cypress:open
 ```
 
+### Test Documentation
+
+For comprehensive test documentation, see:
+- [Test Plan](docs/testing/TEST_PLAN.md) - Test strategy, coverage, and execution plan
+- [Test Cases](docs/testing/TEST_CASES.md) - Detailed test cases organized by feature area
+  - [Authentication & Authorization](docs/testing/test-cases/01-authentication.md)
+  - [Recipe Management](docs/testing/test-cases/02-recipes.md)
+  - [Ingredient Management](docs/testing/test-cases/03-ingredients.md)
+  - [User Profile](docs/testing/test-cases/04-profile.md)
+  - [Favorites](docs/testing/test-cases/05-favorites.md)
+  - [Navigation & UI](docs/testing/test-cases/06-navigation-ui.md)
+  - [Unit Tests](docs/testing/test-cases/07-unit-tests.md)
+
 ## CI/CD
 
 This project includes GitHub Actions workflows that automatically run tests on push and pull requests:
