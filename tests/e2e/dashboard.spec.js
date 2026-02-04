@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { login } from './auth-helpers.js';
 
-test.describe('Dashboard', () => {
+test.describe('Dashboard', {
+  tag: '@smoke',
+}, () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await login(page);

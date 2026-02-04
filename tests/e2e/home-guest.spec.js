@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Home Page', () => {
+test.describe('Home Page -Guest View', {
+  tag: '@smoke',
+}, () => {
   test('should load the home page successfully', async ({ page }) => {
     // Navigate to the home page
     await page.goto('/');
@@ -12,7 +14,7 @@ test.describe('Home Page', () => {
     await expect(page.locator('h1')).toContainText(/Fastest Way to Find|Welcome back/i);
   });
 
-  test('should display navigation elements', async ({ page }) => {
+  test('@smoke should display navigation elements', async ({ page }) => {
     await page.goto('/');
 
     // Check for navigation - it should be visible
@@ -24,7 +26,7 @@ test.describe('Home Page', () => {
     await expect(loginLink).toBeVisible();
   });
 
-  test('should have working login link', async ({ page }) => {
+  test('@smoke should have working login link', async ({ page }) => {
     await page.goto('/');
     
     // Click on login link
@@ -34,9 +36,19 @@ test.describe('Home Page', () => {
     await expect(page).toHaveURL(/\/login/);
     await expect(page.locator('input[name="email"]')).toBeVisible();
     await expect(page.locator('input[name="password"]')).toBeVisible();
+    //should have forgot password link
+    const forgotPasswordLink = page.getByRole('link', { name: /forgot password|forgot/i });
+    await expect(forgotPasswordLink).toBeVisible();
+    await forgotPasswordLink.click();
+    await expect(page).toHaveURL(/\/forgot-password/);
+    await expect(page.locator('input[name="email"]')).toBeVisible();
   });
 
-  test('should have working register link', async ({ page }) => {
+
+
+
+
+  test('@smoke should have working register link', async ({ page }) => {
     await page.goto('/');
     
     // Click on register link
