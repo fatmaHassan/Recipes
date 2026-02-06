@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 // Public API routes (no authentication required)
 Route::post('/register', [AuthController::class, 'register'])->name('api.register');
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+Route::get('/recipes/random', [RecipeController::class, 'random'])->name('api.recipes.random');
 
 // Protected API routes (authentication required)
 Route::middleware(['auth:sanctum'])->group(function () {
@@ -46,15 +47,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/allergies', [AllergyController::class, 'store'])->name('api.allergies.store');
     Route::delete('/allergies/{allergy}', [AllergyController::class, 'destroy'])->name('api.allergies.destroy');
     
+    // My Recipes (must be before /recipes routes to avoid conflicts)
+    Route::get('/my-recipes', [MyRecipesController::class, 'index'])->name('api.my-recipes.index');
+    
     // Recipes
-    Route::get('/recipes/search', [RecipeController::class, 'search'])->name('api.recipes.search');
-    Route::post('/recipes/search', [RecipeController::class, 'search'])->name('api.recipes.search.post');
+    // Note: Only POST is used for search since it requires ingredients in the request body
+    Route::post('/recipes/search', [RecipeController::class, 'search'])->name('api.recipes.search');
     Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('api.recipes.show');
     Route::post('/recipes/save', [RecipeController::class, 'save'])->name('api.recipes.save');
     Route::post('/recipes/{recipeId}/favorite', [RecipeController::class, 'toggleFavorite'])->name('api.recipes.favorite');
-    
-    // My Recipes
-    Route::get('/my-recipes', [MyRecipesController::class, 'index'])->name('api.my-recipes.index');
     
     // Favorites
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('api.favorites.index');

@@ -168,4 +168,34 @@ class RecipeController extends Controller
             'recipe' => $savedRecipe,
         ]);
     }
+
+    /**
+     * Get random meals
+     */
+    public function random(Request $request): JsonResponse
+    {
+        try {
+            $count = (int) ($request->query('count', 6));
+            $count = max(1, min($count, 20)); // Limit between 1 and 20
+            
+            $recipes = $this->recipeService->getRandomMeals($count);
+            
+            // Filter by allergies if user is logged in
+            if (Auth::check()) {
+                $allergies = Auth::user()->allergies()->get()->toArray();
+                $recipes = $this->recipeService->filterByAllergies($recipes, $allergies);
+            }
+            
+            return response()->json([
+                'recipes' => $recipes,
+                'count' => count($recipes),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching random meals: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed to fetch random meals',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -267,6 +267,61 @@ class RecipeService
     }
 
     /**
+     * Get random meals from TheMealDB
+     * 
+     * @param int $count Number of random meals to fetch (default: 6)
+     * @return array Array of random meal recipes
+     */
+    public function getRandomMeals(int $count = 6): array
+    {
+        $cacheKey = "random_meals_{$count}";
+        
+        // Cache for shorter time (15 minutes) to ensure freshness
+        return Cache::remember($cacheKey, 900, function () use ($count) {
+            $meals = [];
+            $mealIds = [];
+            
+            // Fetch random meals one by one to avoid duplicates
+            for ($i = 0; $i < $count * 2; $i++) { // Try more times to account for duplicates
+                if (count($meals) >= $count) {
+                    break;
+                }
+                
+                try {
+                    $response = Http::get($this->baseUrl . 'random.php');
+                    
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        $meal = $data['meals'][0] ?? null;
+                        
+                        if ($meal && isset($meal['idMeal'])) {
+                            $mealId = $meal['idMeal'];
+                            
+                            // Avoid duplicates
+                            if (!in_array($mealId, $mealIds)) {
+                                $mealIds[] = $mealId;
+                                $meals[] = $meal;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error fetching random meal from TheMealDB', [
+                        'attempt' => $i + 1,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                
+                // Small delay to avoid rate limiting
+                if ($i < $count * 2 - 1) {
+                    usleep(100000); // 0.1 second delay
+                }
+            }
+            
+            return $meals;
+        });
+    }
+
+    /**
      * Extract ingredients from recipe details
      */
     private function extractIngredients(array $recipeDetails): array
