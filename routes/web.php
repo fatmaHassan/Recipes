@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Public recipe viewing (accessible to guests)
-Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('recipes.show');
-
 // Authentication routes (from Breeze)
 require __DIR__.'/auth.php';
 
@@ -31,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Allergies
     Route::resource('allergies', AllergyController::class);
     
-    // Recipes (search and actions require auth)
+    // Recipes (search and actions require auth) - must come before /recipes/{id} route
     Route::match(['get', 'post'], '/recipes/search', [RecipeController::class, 'search'])->name('recipes.search');
     Route::post('/recipes/save', [RecipeController::class, 'save'])->name('recipes.save');
     Route::post('/recipes/{recipeId}/favorite', [RecipeController::class, 'toggleFavorite'])->name('recipes.favorite');
@@ -47,3 +44,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Public recipe viewing (accessible to guests) - must come after /recipes/search
+Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('recipes.show');
