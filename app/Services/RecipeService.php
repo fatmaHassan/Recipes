@@ -203,7 +203,7 @@ class RecipeService
     {
         $cacheKey = "recipe_details_{$recipeId}";
         
-        return Cache::remember($cacheKey, 3600, function () use ($recipeId) {
+        $result = Cache::remember($cacheKey, 3600, function () use ($recipeId) {
             try {
                 $response = Http::get($this->baseUrl . 'lookup.php', [
                     'i' => $recipeId
@@ -224,6 +224,15 @@ class RecipeService
                 return null;
             }
         });
+
+        // Ensure we always return ?array, not a string or other type
+        if (!is_array($result) && $result !== null) {
+            // If cached value is not the expected type, clear cache and return null
+            Cache::forget($cacheKey);
+            return null;
+        }
+
+        return $result;
     }
 
     /**

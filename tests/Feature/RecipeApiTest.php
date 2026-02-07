@@ -16,7 +16,7 @@ class RecipeApiTest extends TestCase
      */
     public function test_recipe_search_by_ingredients_returns_results(): void
     {
-        // Mock TheMealDB API response
+        // Mock TheMealDB API responses
         Http::fake([
             'www.themealdb.com/api/json/v1/1/filter.php*' => Http::response([
                 'meals' => [
@@ -24,6 +24,16 @@ class RecipeApiTest extends TestCase
                         'idMeal' => '52772',
                         'strMeal' => 'Teriyaki Chicken Casserole',
                         'strMealThumb' => 'https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg',
+                    ],
+                ],
+            ], 200),
+            'www.themealdb.com/api/json/v1/1/lookup.php*' => Http::response([
+                'meals' => [
+                    [
+                        'idMeal' => '52772',
+                        'strMeal' => 'Teriyaki Chicken Casserole',
+                        'strMealThumb' => 'https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg',
+                        'strInstructions' => 'Test instructions',
                     ],
                 ],
             ], 200),
