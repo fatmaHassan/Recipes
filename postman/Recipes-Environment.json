@@ -28,13 +28,13 @@
 		},
 		{
 			"key": "recipes_website_user_mail",
-			"value": "",
+			"value": "test@example.com",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "recipes_website_user_password",
-			"value": "",
+			"value": "password",
 			"type": "default",
 			"enabled": true
 		},
