@@ -1,0 +1,1130 @@
+openapi: 3.1.0
+info:
+  title: Recipes API
+  description: |
+    API for managing recipes, ingredients, allergies, and user preferences.
+    
+    This API uses Laravel Sanctum for authentication. Most endpoints require authentication via Bearer token.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+  - url: https://your-domain.com/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration and authentication
+  - name: Dashboard
+    description: User dashboard statistics
+  - name: Recipes
+    description: Recipe search and management
+  - name: Ingredients
+    description: User ingredient management
+  - name: Allergies
+    description: User allergy management
+  - name: Favorites
+    description: Favorite recipes management
+  - name: Profile
+    description: User profile management
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Laravel Sanctum token authentication
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          example: "1|xxxxxxxxxxxx"
+          description: Bearer token for authenticated requests
+
+    Recipe:
+      type: object
+      properties:
+        idMeal:
+          type: string
+          example: "52772"
+        strMeal:
+          type: string
+          example: "Teriyaki Chicken Casserole"
+        strDrinkAlternate:
+          type: string
+          nullable: true
+        strCategory:
+          type: string
+          example: "Chicken"
+        strArea:
+          type: string
+          example: "Japanese"
+        strInstructions:
+          type: string
+        strMealThumb:
+          type: string
+          format: uri
+          example: "https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg"
+        strTags:
+          type: string
+          nullable: true
+        strYoutube:
+          type: string
+          format: uri
+          nullable: true
+        strIngredient1:
+          type: string
+          nullable: true
+        strMeasure1:
+          type: string
+          nullable: true
+        strIngredient2:
+          type: string
+          nullable: true
+        strMeasure2:
+          type: string
+          nullable: true
+        # Additional ingredients/measures can be added similarly
+
+    RecipeListItem:
+      type: object
+      properties:
+        idMeal:
+          type: string
+          example: "52772"
+        strMeal:
+          type: string
+          example: "Teriyaki Chicken Casserole"
+        strMealThumb:
+          type: string
+          format: uri
+          example: "https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg"
+
+    RecipeSearchResponse:
+      type: object
+      properties:
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeListItem'
+        suggestions:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Ingredient suggestions for ingredients that returned no results
+        count:
+          type: integer
+          example: 10
+
+    RecipeDetailResponse:
+      type: object
+      properties:
+        recipe:
+          $ref: '#/components/schemas/Recipe'
+        is_saved:
+          type: boolean
+          example: false
+        is_favorite:
+          type: boolean
+          example: false
+
+    SavedRecipe:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        recipe_id:
+          type: string
+          example: "52772"
+        recipe_data:
+          type: object
+          description: Full recipe data object
+        is_favorite:
+          type: boolean
+          example: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Chicken"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Allergy:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        allergen_name:
+          type: string
+          example: "Peanuts"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DashboardStats:
+      type: object
+      properties:
+        ingredients_count:
+          type: integer
+          example: 5
+        allergies_count:
+          type: integer
+          example: 2
+        saved_recipes_count:
+          type: integer
+          example: 10
+        favorites_count:
+          type: integer
+          example: 3
+
+    DashboardResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        stats:
+          $ref: '#/components/schemas/DashboardStats'
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Error message"
+        error:
+          type: string
+          nullable: true
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+paths:
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account and returns an authentication token
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticates a user and returns an authentication token
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          description: Validation error or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: Invalidates the current authentication token
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user:
+    get:
+      tags:
+        - Authentication
+      summary: Get authenticated user
+      description: Returns the currently authenticated user's information
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard statistics
+      description: Returns user statistics including ingredient count, allergies count, saved recipes, and favorites
+      operationId: getDashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /recipes/random:
+    get:
+      tags:
+        - Recipes
+      summary: Get random recipes
+      description: Returns a random selection of recipes. Results are filtered by user allergies if authenticated.
+      operationId: getRandomRecipes
+      security: []
+      parameters:
+        - name: count
+          in: query
+          description: Number of random recipes to return (1-20)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 6
+          example: 6
+      responses:
+        '200':
+          description: Random recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recipes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecipeListItem'
+                  count:
+                    type: integer
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /recipes/search:
+    post:
+      tags:
+        - Recipes
+      summary: Search recipes by ingredients
+      description: |
+        Search for recipes that contain the specified ingredients.
+        Results are automatically filtered by user allergies if authenticated.
+        Returns suggestions for ingredients that returned no results.
+      operationId: searchRecipes
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ingredients
+              properties:
+                ingredients:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                  example: ["chicken", "onion", "garlic"]
+      responses:
+        '200':
+          description: Recipes found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeSearchResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /recipes/{id}:
+    get:
+      tags:
+        - Recipes
+      summary: Get recipe details
+      description: Returns detailed information about a specific recipe, including saved and favorite status
+      operationId: getRecipeDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Recipe ID from TheMealDB
+          schema:
+            type: string
+          example: "52772"
+      responses:
+        '200':
+          description: Recipe details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDetailResponse'
+        '404':
+          description: Recipe not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /recipes/save:
+    post:
+      tags:
+        - Recipes
+      summary: Save a recipe
+      description: Saves a recipe to the user's collection. Optionally marks it as favorite.
+      operationId: saveRecipe
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipe_id
+                - recipe_data
+              properties:
+                recipe_id:
+                  type: string
+                  example: "52772"
+                recipe_data:
+                  type: object
+                  description: Full recipe data object from TheMealDB
+                favorite:
+                  type: boolean
+                  example: false
+                  description: Whether to mark as favorite immediately
+      responses:
+        '201':
+          description: Recipe saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe saved successfully!"
+                  recipe:
+                    $ref: '#/components/schemas/SavedRecipe'
+        '409':
+          description: Recipe already saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe is already saved"
+                  recipe:
+                    $ref: '#/components/schemas/SavedRecipe'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /recipes/{recipeId}/favorite:
+    post:
+      tags:
+        - Recipes
+      summary: Toggle favorite status
+      description: Toggles the favorite status of a saved recipe
+      operationId: toggleFavorite
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: recipeId
+          in: path
+          required: true
+          description: Recipe ID
+          schema:
+            type: string
+          example: "52772"
+      responses:
+        '200':
+          description: Favorite status toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe added to favorites."
+                  recipe:
+                    $ref: '#/components/schemas/SavedRecipe'
+        '404':
+          description: Recipe not found in saved recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /my-recipes:
+    get:
+      tags:
+        - Recipes
+      summary: Get user's saved recipes
+      description: Returns all recipes saved by the authenticated user
+      operationId: getMyRecipes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Saved recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recipes:
+                    type: array
+                    items:
+                      type: object
+                      description: Recipe data merged with saved recipe metadata
+                  data:
+                    type: array
+                    items:
+                      type: object
+                    description: Alias for recipes (for compatibility)
+                  count:
+                    type: integer
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ingredients:
+    get:
+      tags:
+        - Ingredients
+      summary: Get user's ingredients
+      description: Returns all ingredients saved by the authenticated user
+      operationId: getIngredients
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User ingredients
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingredients:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Ingredient'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Ingredients
+      summary: Add an ingredient
+      description: Adds a new ingredient to the user's collection
+      operationId: addIngredient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: "Chicken"
+      responses:
+        '201':
+          description: Ingredient added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ingredient added successfully"
+                  ingredient:
+                    $ref: '#/components/schemas/Ingredient'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /ingredients/{ingredient}:
+    delete:
+      tags:
+        - Ingredients
+      summary: Delete an ingredient
+      description: Removes an ingredient from the user's collection
+      operationId: deleteIngredient
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: ingredient
+          in: path
+          required: true
+          description: Ingredient ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Ingredient deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ingredient deleted successfully"
+        '403':
+          description: Unauthorized - ingredient doesn't belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ingredient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ingredients/search:
+    get:
+      tags:
+        - Ingredients
+      summary: Search ingredients
+      description: Search for ingredient suggestions (autocomplete)
+      operationId: searchIngredients
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: Search query
+          schema:
+            type: string
+          example: "chick"
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results (max 20)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 10
+          example: 10
+      responses:
+        '200':
+          description: Ingredient suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    example: ["chicken", "chicken breast", "chicken thighs"]
+
+  /ingredients/check:
+    post:
+      tags:
+        - Ingredients
+      summary: Check if ingredient exists
+      description: Checks if an ingredient exists in TheMealDB and returns suggestions if not found
+      operationId: checkIngredient
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ingredient:
+                  type: string
+                  example: "chicken"
+      responses:
+        '200':
+          description: Ingredient check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                    example: true
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    description: Suggestions if ingredient doesn't exist
+
+  /allergies:
+    get:
+      tags:
+        - Allergies
+      summary: Get user's allergies
+      description: Returns all allergies saved by the authenticated user
+      operationId: getAllergies
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User allergies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allergies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Allergy'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Allergies
+      summary: Add an allergy
+      description: Adds a new allergy to the user's profile
+      operationId: addAllergy
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - allergen_name
+              properties:
+                allergen_name:
+                  type: string
+                  maxLength: 255
+                  example: "Peanuts"
+      responses:
+        '201':
+          description: Allergy added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Allergy added successfully"
+                  allergy:
+                    $ref: '#/components/schemas/Allergy'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /allergies/{allergy}:
+    delete:
+      tags:
+        - Allergies
+      summary: Delete an allergy
+      description: Removes an allergy from the user's profile
+      operationId: deleteAllergy
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: allergy
+          in: path
+          required: true
+          description: Allergy ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Allergy deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Allergy deleted successfully"
+        '403':
+          description: Unauthorized - allergy doesn't belong to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Allergy not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /favorites:
+    get:
+      tags:
+        - Favorites
+      summary: Get user's favorite recipes
+      description: Returns all recipes marked as favorite by the authenticated user
+      operationId: getFavorites
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Favorite recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorites:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SavedRecipe'
+                  count:
+                    type: integer
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      description: Returns the authenticated user's profile information
+      operationId: getProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Profile
+      summary: Update user profile
+      description: Updates the authenticated user's profile information
+      operationId: updateProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                  example: "john@example.com"
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile updated successfully"
+                  user:
+                    $ref: '#/components/schemas/User'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    delete:
+      tags:
+        - Profile
+      summary: Delete user account
+      description: Permanently deletes the authenticated user's account
+      operationId: deleteProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+      responses:
+        '200':
+          description: Account deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account deleted successfully"
+        '422':
+          description: Validation error (incorrect password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
