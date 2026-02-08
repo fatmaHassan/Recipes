@@ -1,11 +1,13 @@
 {
   "info": {
-    "_postman_id": "recipes-api-collection",
-		"name": "Recipes API Collection",
-		"description": "Complete API collection for testing TheMealDB API endpoints used in the Recipes application.\n\nThis collection includes:\n- Recipe search by ingredient\n- Get all ingredients list\n- Get recipe details by ID\n\nAll requests include automated tests and assertions.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "8a997bf6-a8e0-47d7-b9f8-8ca6953bdbff",
+    "name": "Recipes API Collection",
+    "description": "Complete API collection for testing TheMealDB API endpoints used in the Recipes application.\n\nThis collection includes:\n- Recipe search by ingredient\n- Get all ingredients list\n- Get recipe details by ID\n\nAll requests include automated tests and assertions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2200196",
+    "_collection_link": "https://go.postman.co/collection/2200196-8a997bf6-a8e0-47d7-b9f8-8ca6953bdbff?source=collection_link"
   },
-    "item": [
+  "item": [
     {
       "name": "Recipes",
       "item": [
@@ -393,6 +395,110 @@
         }
       ],
       "description": "Pre-configured test scenarios for edge cases and validation"
+    },
+    {
+      "name": "User Data",
+      "item": [
+        {
+          "name": "Auth Recipes website User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "  if (pm.response.code === 200) {",
+                  "      const jsonData = pm.response.json();",
+                  "      pm.environment.set(\"auth_token\", jsonData.token);",
+                  "      console.log('Auth Token',jsonData.token)",
+                  "  }"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{recipes_website_url}}/login",
+              "host": [
+                "{{recipes_website_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Recipes",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{recipes_website_url}}/my-recipes",
+              "host": [
+                "{{recipes_website_url}}"
+              ],
+              "path": [
+                "my-recipes"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "Get Random Meals",

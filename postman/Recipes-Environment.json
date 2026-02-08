@@ -1,5 +1,5 @@
 {
-	"id": "recipes-environment",
+	"id": "13dad6a7-5ee5-436b-8943-b123a0d85db4",
 	"name": "Recipes API - Production",
 	"values": [
 		{
@@ -19,9 +19,34 @@
 			"value": "52772",
 			"type": "default",
 			"enabled": true
+		},
+		{
+			"key": "recipes_website_url",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "recipes_website_user_mail",
+			"value": "test@example.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "recipes_website_user_password",
+			"value": "password",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "default",
+			"enabled": true
 		}
 	],
+	"color": null,
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2026-01-29T00:00:00.000Z",
-	"_postman_exported_using": "Postman/10.0.0"
+	"_postman_exported_at": "2026-02-08T17:40:05.966Z",
+	"_postman_exported_using": "Postman/11.83.6"
 }
