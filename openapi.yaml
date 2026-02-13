@@ -11,10 +11,11 @@ info:
     email: support@example.com
 
 servers:
-  - url: http://localhost:8000/api
-    description: Local development server
-  - url: https://your-domain.com/api
-    description: Production server
+  - url: '{base_url}'
+    description: API base URL (e.g. http://localhost:8000/api for local, or your production URL)
+    variables:
+      base_url:
+        default: http://localhost:8000/api
 
 tags:
   - name: Authentication
