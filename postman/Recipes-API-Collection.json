@@ -1,18 +1,230 @@
 {
   "info": {
-    "_postman_id": "8a997bf6-a8e0-47d7-b9f8-8ca6953bdbff",
+    "_postman_id": "26266159-79ac-4958-87a7-b64555eea330",
     "name": "Recipes API Collection",
     "description": "Complete API collection for testing TheMealDB API endpoints used in the Recipes application.\n\nThis collection includes:\n- Recipe search by ingredient\n- Get all ingredients list\n- Get recipe details by ID\n\nAll requests include automated tests and assertions.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "2200196",
-    "_collection_link": "https://go.postman.co/collection/2200196-8a997bf6-a8e0-47d7-b9f8-8ca6953bdbff?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/2200196-26266159-79ac-4958-87a7-b64555eea330?source=collection_link"
   },
   "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "  if (pm.response.code === 200) {",
+                  "      const jsonData = pm.response.json();",
+                  "      pm.environment.set(\"auth_token\", jsonData.token);",
+                  "      console.log('Auth Token',jsonData.token)",
+                  "  }"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": " {\n    \"name\":\"{{user_register_name}}\",\n    \"email\":\"{{user_register_email}}\",\n \"password\":\"{{user_register_password}}\",\n \"password_confirmation\":\"{{user_register_password}}\"\n     \n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 204\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});",
+                  "",
+                  "// Do NOT unset auth_token here so the variable stays for inspection.",
+                  "// Run this request last in the collection so the token stays valid for all prior requests."
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Invalidates the current token on the server. Run last when running the full collection so the token stays valid for all other requests."
+          },
+          "response": []
+        },
+        {
+          "name": "re authen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "  if (pm.response.code === 200) {",
+                  "      const jsonData = pm.response.json();",
+                  "      pm.environment.set(\"auth_token\", jsonData.token);",
+                  "      console.log('Auth Token',jsonData.token)",
+                  "  }"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Recipes",
       "item": [
         {
-          "name": "Search Recipes by Ingredient",
+          "name": "Search Recipes by Ingredients",
           "event": [
             {
               "listen": "test",
@@ -57,27 +269,48 @@
                   "    pm.collectionVariables.set(\"sample_meal_name\", pm.response.json().meals[0].strMeal);",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredients\": [\n    \"chicken\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{base_url}}/filter.php?i={{ingredient}}",
+              "raw": "{{base_url}}/recipes/search",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "filter.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "{{ingredient}}",
-                  "description": "Ingredient name (e.g., chicken, beef, tomato)"
-                }
+                "recipes",
+                "search"
               ]
             },
             "description": "Search for recipes that contain a specific ingredient.\n\n**Note:** TheMealDB returns `null` (not empty array) when no results are found.\n\n**Example ingredients:** chicken, beef, tomato, onion, garlic"
@@ -85,7 +318,109 @@
           "response": []
         },
         {
-          "name": "Get Recipe Details by ID",
+          "name": "random",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check the response is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "})",
+                  "pm.test(\"Check the response is json\", function () {",
+                  "    pm.response.to.be.json; ",
+                  "})",
+                  "    ",
+                  "pm.test(\"Check Meals response is array or null\", function(){",
+                  " const jsonData = pm.response.json();",
+                  "    const meals = jsonData.meals;",
+                  "    pm.expect(meals === null || Array.isArray(meals)).to.be.true;",
+                  "})",
+                  "pm.test(\"If meals exist, they have required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.meals && jsonData.meals.length > 0) {",
+                  "        const meal = jsonData.meals[0];",
+                  "        pm.expect(meal).to.have.property('idMeal');",
+                  "        pm.expect(meal).to.have.property('strMeal');",
+                  "        pm.expect(meal).to.have.property('strMealThumb');",
+                  "    }",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/recipes/random",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "recipes",
+                "random"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Recipes",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/my-recipes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my-recipes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Recipe Details by ID",
           "event": [
             {
               "listen": "test",
@@ -148,27 +483,33 @@
                   "    }",
                   "});"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/lookup.php?i={{recipe_id}}",
+              "raw": "{{base_url}}/recipes/{{recipe_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "lookup.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "{{recipe_id}}",
-                  "description": "Recipe ID (e.g., 52772)"
-                }
+                "recipes",
+                "{{recipe_id}}"
               ]
             },
             "description": "Get full recipe details by recipe ID.\n\n**Returns:** Complete recipe information including:\n- Recipe name, instructions, image\n- All ingredients (strIngredient1-20)\n- Measurements (strMeasure1-20)\n- Category, area, tags, etc.\n\n**Note:** Uses collection variable `sample_meal_id` if `recipe_id` is not set."
@@ -182,7 +523,81 @@
       "name": "Ingredients",
       "item": [
         {
-          "name": "Get All Ingredients List",
+          "name": "add user ingrediant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  " pm.test(\"status code is 201\", function(){",
+                  "    pm.response.to.have.status(201);",
+                  " })",
+                  " pm.test(\"response has json body\",function(){",
+                  "    pm.response.to.be.json",
+                  " })",
+                  " pm.test(\"messeage contains successful confirmation\", function(){",
+                  "    const jsonBody = pm.response.json();",
+                  "    pm.expect(jsonBody.message).to.include(\"Ingredient added successfully\");",
+                  " })",
+                  " if (pm.response.code === 201) {",
+                  "      const jsonData = pm.response.json();",
+                  "      pm.environment.set(\"ingredient_id\", jsonData.ingredient.id);",
+                  "      console.log('ingredient_id',jsonData.ingredient.id)",
+                  "  }"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ingredient Sample\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/ingredients",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ingredients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user Ingredients",
           "event": [
             {
               "listen": "test",
@@ -199,88 +614,13 @@
                   "pm.test(\"Response has JSON body\", function () {",
                   "    pm.response.to.be.json;",
                   "});",
-                  "",
-                  "pm.test(\"Response contains meals array\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('meals');",
-                  "    pm.expect(jsonData.meals).to.be.an('array');",
-                  "});",
-                  "",
-                  "pm.test(\"Meals array is not empty\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.meals.length).to.be.at.least(1);",
-                  "});",
-                  "",
-                  "pm.test(\"Each ingredient has strIngredient property\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    jsonData.meals.forEach(function(ingredient) {",
-                  "        pm.expect(ingredient).to.have.property('strIngredient');",
-                  "        pm.expect(ingredient.strIngredient).to.be.a('string');",
-                  "        pm.expect(ingredient.strIngredient.trim()).to.not.equal('');",
-                  "    });",
-                  "});",
-                  "",
-                  "pm.test(\"Ingredients list contains common ingredients\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    const ingredientNames = jsonData.meals.map(i => i.strIngredient.toLowerCase());",
-                  "    ",
-                  "    const commonIngredients = ['chicken', 'beef', 'tomato', 'onion', 'garlic'];",
-                  "    const foundCommon = commonIngredients.some(ing => ingredientNames.includes(ing));",
-                  "    ",
-                  "    pm.expect(foundCommon).to.be.true;",
-                  "});",
-                  "",
-                  "// Save first few ingredients for use in other requests",
-                  "if (pm.response.json().meals && pm.response.json().meals.length > 0) {",
-                  "    const firstIngredient = pm.response.json().meals[0].strIngredient;",
-                  "    pm.collectionVariables.set(\"sample_ingredient\", firstIngredient);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/list.php?i=list",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "list.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "list",
-                  "description": "Fixed value 'list' to get all ingredients"
-                }
-              ]
-            },
-            "description": "Get a complete list of all available ingredients from TheMealDB.\n\n**Returns:** Array of ingredients with `strIngredient` property.\n\n**Note:** This endpoint is cached for 24 hours in the application."
-          },
-          "response": []
-        }
-      ],
-      "description": "Endpoints for retrieving ingredient information"
-    },
-    {
-      "name": "Test Scenarios",
-      "item": [
-        {
-          "name": "Search with Valid Ingredient",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Returns results for valid ingredient\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.meals).to.not.be.null;",
-                  "    pm.expect(jsonData.meals.length).to.be.at.least(1);",
-                  "});"
+                  "pm.test(\"response has ingredient array\",function(){",
+                  "    const jsonBody = pm.response.json();",
+                  "    pm.expect(jsonBody).to.have.property('ingredients');",
+                  "    const ingredientsArray = jsonBody.ingredients;",
+                  "    pm.expect(ingredientsArray).to.be.an('array');",
+                  "})",
+                  ""
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -288,176 +628,6 @@
               }
             }
           ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/filter.php?i=chicken",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "filter.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "chicken"
-                }
-              ]
-            },
-            "description": "Test case: Search with a valid ingredient that should return results"
-          },
-          "response": []
-        },
-        {
-          "name": "Search with Invalid Ingredient",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Returns null for invalid ingredient\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    // TheMealDB returns null (not empty array) when no results",
-                  "    pm.expect(jsonData.meals).to.be.null;",
-                  "});",
-                  "",
-                  "pm.test(\"Status is still 200 even with no results\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/filter.php?i=invalid_ingredient_xyz123",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "filter.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "invalid_ingredient_xyz123"
-                }
-              ]
-            },
-            "description": "Test case: Search with an invalid ingredient that should return null"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Recipe with Invalid ID",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Returns null or empty array for invalid ID\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.meals).to.satisfy(function(meals) {",
-                  "        return meals === null || (Array.isArray(meals) && meals.length === 0);",
-                  "    });",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/lookup.php?i=99999999",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "lookup.php"
-              ],
-              "query": [
-                {
-                  "key": "i",
-                  "value": "99999999"
-                }
-              ]
-            },
-            "description": "Test case: Get recipe details with an invalid/non-existent recipe ID"
-          },
-          "response": []
-        }
-      ],
-      "description": "Pre-configured test scenarios for edge cases and validation"
-    },
-    {
-      "name": "User Data",
-      "item": [
-        {
-          "name": "Auth Recipes website User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "  if (pm.response.code === 200) {",
-                  "      const jsonData = pm.response.json();",
-                  "      pm.environment.set(\"auth_token\", jsonData.token);",
-                  "      console.log('Auth Token',jsonData.token)",
-                  "  }"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{recipes_website_url}}/login",
-              "host": [
-                "{{recipes_website_url}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "User Recipes",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
           "request": {
             "auth": {
               "type": "bearer",
@@ -470,85 +640,84 @@
               ]
             },
             "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ingredients",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ingredients"
+              ]
+            },
+            "description": "Get a complete list of all available ingredients from TheMealDB.\n\n**Returns:** Array of ingredients with `strIngredient` property.\n\n**Note:** This endpoint is cached for 24 hours in the application."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete a user Ingrediant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Ingredient deleted successfully\", function () {",
+                  "    pm.response.status == 200;",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Ingredient deleted successfully\");",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
               {
                 "key": "Accept",
                 "value": "application/json",
                 "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
             "url": {
-              "raw": "{{recipes_website_url}}/my-recipes",
+              "raw": "{{base_url}}/ingredients/:ingredient",
               "host": [
-                "{{recipes_website_url}}"
+                "{{base_url}}"
               ],
               "path": [
-                "my-recipes"
+                "ingredients",
+                ":ingredient"
+              ],
+              "variable": [
+                {
+                  "key": "ingredient",
+                  "value": "{{ingredient_id}}"
+                }
               ]
             }
           },
           "response": []
         }
-      ]
-    },
-    {
-      "name": "Get Random Meals",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Check the response is 200\", function () {",
-              "    pm.response.to.have.status(200);",
-              "})",
-              "pm.test(\"Check the response is json\", function () {",
-              "    pm.response.to.be.json; ",
-              "})",
-              "    ",
-              "pm.test(\"Check Meals response is array or null\", function(){",
-              " const jsonData = pm.response.json();",
-              "    const meals = jsonData.meals;",
-              "    pm.expect(meals === null || Array.isArray(meals)).to.be.true;",
-              "})",
-              "pm.test(\"If meals exist, they have required fields\", function () {",
-              "    const jsonData = pm.response.json();",
-              "    if (jsonData.meals && jsonData.meals.length > 0) {",
-              "        const meal = jsonData.meals[0];",
-              "        pm.expect(meal).to.have.property('idMeal');",
-              "        pm.expect(meal).to.have.property('strMeal');",
-              "        pm.expect(meal).to.have.property('strMealThumb');",
-              "    }",
-              "})"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
       ],
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/random.php",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "random.php"
-          ]
-        }
-      },
-      "response": []
+      "description": "Endpoints for retrieving ingredient information"
     }
   ],
   "event": [

@@ -10,6 +10,9 @@ jobs:
   phpunit:
     name: PHPUnit Tests
     runs-on: ubuntu-latest
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
 
     steps:
       - name: Checkout code
@@ -49,7 +52,10 @@ jobs:
   playwright:
     name: Playwright E2E Tests
     runs-on: ubuntu-latest
-    
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,7 +127,11 @@ jobs:
   api-tests:
     name: API Tests (Newman)
     runs-on: ubuntu-latest
-    
+    env:
+      # Use SQLite so migrate + seed run on the same DB as the server (seeded test user for login).
+      DB_CONNECTION: sqlite
+      DB_DATABASE: database/database.sqlite
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

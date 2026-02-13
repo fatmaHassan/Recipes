@@ -1,6 +1,6 @@
 # Recipes API Postman Collection
 
-This directory contains Postman collections and environments for testing TheMealDB API endpoints used in the Recipes application.
+This directory contains Postman collections and environments for testing the Recipes application Laravel API endpoints.
 
 ## 📁 Files
 
@@ -24,9 +24,8 @@ This directory contains Postman collections and environments for testing TheMeal
 1. In Postman, click the **Environments** icon (left sidebar)
 2. Select **Recipes API - Production**
 3. Verify variables are set correctly:
-   - `base_url`: `https://www.themealdb.com/api/json/v1/1`
-   - `ingredient`: `chicken` (default)
-   - `recipe_id`: `52772` (default)
+   - `base_url`: `http://localhost:0000/api`
+   - Set `auth_token`, `recipes_website_user_mail`, `recipes_website_user_password` for authenticated requests
 
 ### 3. Run Requests
 
@@ -38,17 +37,20 @@ This directory contains Postman collections and environments for testing TheMeal
 
 ## 📋 Collection Structure
 
-### Recipes
-- **Search Recipes by Ingredient** - `GET /filter.php?i={ingredient}`
-- **Get Recipe Details by ID** - `GET /lookup.php?i={recipe_id}`
+All endpoints are served by the Laravel API at `{{base_url}}` (e.g. `http://localhost:0000/api`).
 
-### Ingredients
-- **Get All Ingredients List** - `GET /list.php?i=list`
+### Organisation: OpenAPI import vs tag-based folders
 
-### Test Scenarios
-- **Search with Valid Ingredient** - Tests successful search
-- **Search with Invalid Ingredient** - Tests null response handling
-- **Get Recipe with Invalid ID** - Tests error handling
+- **OpenAPI import** often creates one folder per operation (e.g. `login`, `logout`, `register` as top-level folders). That matches the spec but can be flat and harder to navigate.
+- **Tag-based / domain folders** (e.g. **Authentication** with login, register, logout inside; **Recipes**, **Ingredients**) are the recommended approach:
+  - Group by feature/domain (how you think about the API).
+  - Easier to find requests and to run subsets (e.g. “all auth” or “all recipes”).
+  - Aligns with OpenAPI `tags` if your spec uses them.
+
+Use the **tag-based structure** (Authentication, Recipes, Ingredients, etc.) as the main organisation; treat the raw OpenAPI import as a starting point and reorganise into these folders.
+
+### Where to put negative and scenario tests
+
 
 ## ✅ Automated Tests
 
@@ -67,12 +69,27 @@ The collection uses these variables (can be overridden per request):
 
 | Variable | Default Value | Description |
 |----------|--------------|-------------|
-| `base_url` | `https://www.themealdb.com/api/json/v1/1` | Base URL for MealDB API |
-| `ingredient` | `chicken` | Default ingredient for search |
-| `recipe_id` | `52772` | Default recipe ID for lookup |
-| `sample_meal_id` | (auto-set) | Automatically set from search results |
-| `sample_meal_name` | (auto-set) | Automatically set from search results |
-| `sample_ingredient` | (auto-set) | Automatically set from ingredients list |
+| `base_url` | `http://localhost:0000/api` | Base URL for Laravel API |
+| `auth_token` | (set from login) | Bearer token for authenticated requests |
+| `recipes_website_user_mail` | — | User email for login |
+| `recipes_website_user_password` | — | User password for login |
+| `user_register_email` | — | Email for registration |
+| `user_register_password` | — | Password for registration |
+| `user_register_name` | — | Name for registration |
+
+## 🔐 Run order and auth token
+
+When you run **Login → Register → Logout** in that order:
+
+1. **Login** sets `auth_token` in the environment (from the response).
+2. **Register** does not set or change `auth_token` (Laravel register returns 201; you use Login to get a token).
+3. **Logout** invalidates the token on the server. If the Logout request’s test script calls `pm.environment.unset("auth_token")`, the token is also removed from the environment, so any later request that needs `{{auth_token}}` will fail.
+
+**How to keep a valid token for the rest of the collection:**
+
+- **Run Logout last (recommended):** Use run order **Register → Login → (all other requests: Recipes, Ingredients, etc.) → Logout**. That way the token stays valid for every authenticated request and is only invalidated at the end.
+- **Do not clear the token in Logout:** In the Logout request’s **Tests** tab, avoid `pm.environment.unset("auth_token")`. The variable then stays set in Postman (the token is still invalid on the server after logout). Useful if you run requests manually after Logout and don’t want the variable to disappear.
+- **Re-login after Logout:** If you need to run Logout in the middle and then more authenticated requests, add a second **Login** request (e.g. “Login (re-auth)”) after Logout so the collection gets a fresh token for the following requests.
 
 ## 🧪 Running Tests
 
@@ -187,10 +204,10 @@ Variables can be set at three levels (priority order):
 
 ### Tests Failing
 
-- Check if MealDB API is accessible
-- Verify environment variables are set correctly
-- Check network connectivity
-- Review response structure - API might have changed
+- Ensure the Laravel API server is running (e.g. `php artisan serve` or your chosen host/port)
+- Verify `base_url` is correct (e.g. `http://localhost:0000/api`)
+- Verify environment variables are set correctly (including `auth_token` for protected routes)
+- Check network connectivity and CORS if calling from another origin
 
 ### Variables Not Working
 
@@ -200,22 +217,22 @@ Variables can be set at three levels (priority order):
 
 ### Rate Limiting
 
-TheMealDB API has rate limits. If you hit limits:
+If the Laravel API uses rate limiting:
 - Add delays between requests in Newman: `--delay-request 1000`
-- Run tests less frequently
-- Use collection runner with delays
+- Run tests less frequently or adjust rate limit config in the app
 
 ## 📚 Resources
 
 - [Postman Documentation](https://learning.postman.com/docs/)
 - [Newman Documentation](https://learning.postman.com/docs/running-collections/using-newman-cli/command-line-integration-with-newman/)
-- [TheMealDB API Documentation](https://www.themealdb.com/api.php)
+- [Laravel API Documentation](https://laravel.com/docs/api-resources)
 - [Postman Test Scripts](https://learning.postman.com/docs/writing-scripts/test-scripts/)
 
 ## 🔗 Related Files
 
-- `app/Services/RecipeService.php` - Service using these API endpoints
-- `tests/Feature/RecipeApiTest.php` - PHPUnit tests with mocked responses
+- `routes/api.php` - Laravel API route definitions
+- `app/Http/Controllers/Api/` - API controllers
+- `tests/Feature/` - PHPUnit API tests
 
 ## 📄 License
 

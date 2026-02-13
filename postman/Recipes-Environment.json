@@ -3,12 +3,6 @@
 	"name": "Recipes API - Production",
 	"values": [
 		{
-			"key": "base_url",
-			"value": "https://www.themealdb.com/api/json/v1/1",
-			"type": "default",
-			"enabled": true
-		},
-		{
 			"key": "ingredient",
 			"value": "chicken",
 			"type": "default",
@@ -21,20 +15,20 @@
 			"enabled": true
 		},
 		{
-			"key": "recipes_website_url",
+			"key": "base_url",
 			"value": "",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "recipes_website_user_mail",
-			"value": "test@example.com",
+			"value": "",
 			"type": "default",
 			"enabled": true
 		},
 		{
 			"key": "recipes_website_user_password",
-			"value": "password",
+			"value": "",
 			"type": "default",
 			"enabled": true
 		},
@@ -43,10 +37,34 @@
 			"value": "",
 			"type": "default",
 			"enabled": true
+		},
+		{
+			"key": "user_register_email",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "user_register_password",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "user_register_name",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "ingredient_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
 		}
 	],
 	"color": null,
 	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2026-02-08T17:40:05.966Z",
+	"_postman_exported_at": "2026-02-13T13:22:54.675Z",
 	"_postman_exported_using": "Postman/11.83.6"
 }
