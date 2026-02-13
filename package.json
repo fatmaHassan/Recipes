@@ -14,7 +14,7 @@
         "test:e2e:headed": "playwright test --headed",
         "test:e2e:debug": "playwright test --debug",
         "test:api": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json",
-        "test:api:ci": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json --env-var \"recipes_website_url=http://localhost:8000/api\"",
+        "test:api:ci": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json --env-var \"base_url=http://127.0.0.1:8000/api\"",
         "test:api:report": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json --reporters cli,html --reporter-html-export postman/reports/newman-report.html"
     },
     "devDependencies": {

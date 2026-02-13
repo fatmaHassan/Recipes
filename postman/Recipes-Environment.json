@@ -1,76 +1,76 @@
 {
-	"id": "13dad6a7-5ee5-436b-8943-b123a0d85db4",
-	"name": "Recipes API - Production",
-	"values": [
-		{
-			"key": "ingredient",
-			"value": "chicken",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "recipe_id",
-			"value": "52772",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "base_url",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "recipes_website_user_mail",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "recipes_website_user_password",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "auth_token",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "user_register_email",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "user_register_password",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "user_register_name",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "ingredient_id",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "auth_token_register",
-			"value": "",
-			"type": "default",
-			"enabled": true
-		}
-	],
-	"color": null,
-	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2026-02-13T16:13:22.806Z",
-	"_postman_exported_using": "Postman/11.83.6"
+  "id": "13dad6a7-5ee5-436b-8943-b123a0d85db4",
+  "name": "Recipes API - Production",
+  "values": [
+    {
+      "key": "ingredient",
+      "value": "chicken",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recipe_id",
+      "value": "52772",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recipes_website_user_mail",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "recipes_website_user_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_register_email",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_register_password",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_register_name",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ingredient_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "auth_token_register",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "color": null,
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2026-02-13T16:13:22.806Z",
+  "_postman_exported_using": "Postman/11.83.6"
 }
