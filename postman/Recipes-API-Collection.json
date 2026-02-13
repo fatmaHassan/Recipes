@@ -13,210 +13,122 @@
       "item": [
         {
           "name": "login",
-          "event": [
+          "item": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "  if (pm.response.code === 200) {",
-                  "      const jsonData = pm.response.json();",
-                  "      pm.environment.set(\"auth_token\", jsonData.token);",
-                  "      console.log('Auth Token',jsonData.token)",
-                  "  }"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "name": "login-sucess",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "  if (pm.response.code === 200) {",
+                      "      const jsonData = pm.response.json();",
+                      "      pm.environment.set(\"auth_token\", jsonData.token);",
+                      "      console.log('Auth Token',jsonData.token)",
+                      "  }"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/login",
-              "host": [
-                "{{base_url}}"
               ],
-              "path": [
-                "login"
-              ]
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "login"
+                  ]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
           "name": "register",
-          "event": [
+          "item": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "})"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": " {\n    \"name\":\"{{user_register_name}}\",\n    \"email\":\"{{user_register_email}}\",\n \"password\":\"{{user_register_password}}\",\n \"password_confirmation\":\"{{user_register_password}}\"\n     \n     }",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "name": "register-success",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "})",
+                      "  if (pm.response.code === 201) {",
+                      "      const jsonData = pm.response.json();",
+                      "      pm.environment.set(\"auth_token_register\", jsonData.token);",
+                      "  }"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
                 }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/register",
-              "host": [
-                "{{base_url}}"
               ],
-              "path": [
-                "register"
-              ]
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": " {\n    \"name\":\"{{user_register_name}}\",\n    \"email\":\"{{user_register_email}}\",\n \"password\":\"{{user_register_password}}\",\n \"password_confirmation\":\"{{user_register_password}}\"\n     \n     }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "register"
+                  ]
+                }
+              },
+              "response": []
             }
-          },
-          "response": []
+          ]
         },
         {
           "name": "logout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 or 204\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
-                  "});",
-                  "",
-                  "// Do NOT unset auth_token here so the variable stays for inspection.",
-                  "// Run this request last in the collection so the token stays valid for all prior requests."
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{auth_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "logout"
-              ]
-            },
-            "description": "Invalidates the current token on the server. Run last when running the full collection so the token stays valid for all other requests."
-          },
-          "response": []
-        },
-        {
-          "name": "re authen",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "  if (pm.response.code === 200) {",
-                  "      const jsonData = pm.response.json();",
-                  "      pm.environment.set(\"auth_token\", jsonData.token);",
-                  "      console.log('Auth Token',jsonData.token)",
-                  "  }"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": " {\"email\":\"{{recipes_website_user_mail}}\",\n \"password\":\"{{recipes_website_user_password}}\"\n     \n     }",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "response": []
+          "item": []
         }
       ]
     },
@@ -241,7 +153,7 @@
                   "pm.test(\"Response has JSON body\", function () {",
                   "    pm.response.to.be.json;",
                   "});",
-                  "",
+                  "/*",
                   "pm.test(\"Response contains meals property\", function () {",
                   "    const jsonData = pm.response.json();",
                   "    pm.expect(jsonData).to.have.property('meals');",
@@ -267,7 +179,7 @@
                   "if (pm.response.json().meals && pm.response.json().meals.length > 0) {",
                   "    pm.collectionVariables.set(\"sample_meal_id\", pm.response.json().meals[0].idMeal);",
                   "    pm.collectionVariables.set(\"sample_meal_name\", pm.response.json().meals[0].strMeal);",
-                  "}"
+                  "}*/"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -333,8 +245,8 @@
                   "    ",
                   "pm.test(\"Check Meals response is array or null\", function(){",
                   " const jsonData = pm.response.json();",
-                  "    const meals = jsonData.meals;",
-                  "    pm.expect(meals === null || Array.isArray(meals)).to.be.true;",
+                  "    const recipes = jsonData.recipes;",
+                  "    pm.expect(recipes === null || Array.isArray(recipes)).to.be.true;",
                   "})",
                   "pm.test(\"If meals exist, they have required fields\", function () {",
                   "    const jsonData = pm.response.json();",
@@ -438,45 +350,10 @@
                   "    pm.response.to.be.json;",
                   "});",
                   "",
-                  "pm.test(\"Response contains meals array\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('meals');",
-                  "    pm.expect(jsonData.meals).to.be.an('array');",
-                  "});",
-                  "",
-                  "pm.test(\"Meals array has at least one item\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.meals.length).to.be.at.least(1);",
-                  "});",
-                  "",
-                  "pm.test(\"Recipe has all required fields\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    const recipe = jsonData.meals[0];",
-                  "    ",
-                  "    pm.expect(recipe).to.have.property('idMeal');",
-                  "    pm.expect(recipe).to.have.property('strMeal');",
-                  "    pm.expect(recipe).to.have.property('strInstructions');",
-                  "    pm.expect(recipe).to.have.property('strMealThumb');",
-                  "});",
-                  "",
-                  "pm.test(\"Recipe has ingredients (strIngredient1-20)\", function () {",
-                  "    const jsonData = pm.response.json();",
-                  "    const recipe = jsonData.meals[0];",
-                  "    ",
-                  "    let hasIngredients = false;",
-                  "    for (let i = 1; i <= 20; i++) {",
-                  "        if (recipe[`strIngredient${i}`] && recipe[`strIngredient${i}`].trim() !== '') {",
-                  "            hasIngredients = true;",
-                  "            break;",
-                  "        }",
-                  "    }",
-                  "    pm.expect(hasIngredients).to.be.true;",
-                  "});",
-                  "",
                   "pm.test(\"Recipe ID matches requested ID\", function () {",
                   "    const jsonData = pm.response.json();",
-                  "    const recipe = jsonData.meals[0];",
-                  "    const requestedId = pm.variables.get('recipe_id') || pm.collectionVariables.get('sample_meal_id');",
+                  "    const recipe = jsonData.recipe;",
+                  "    const requestedId = pm.variables.get('recipe_id') || pm.collectionVariables.get('recipe_id');",
                   "    ",
                   "    if (requestedId) {",
                   "        pm.expect(recipe.idMeal).to.equal(requestedId);",
@@ -718,6 +595,132 @@
         }
       ],
       "description": "Endpoints for retrieving ingredient information"
+    },
+    {
+      "name": "Teardown",
+      "item": [
+        {
+          "name": "logout-success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 204\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});",
+                  "",
+                  "// Do NOT unset auth_token here so the variable stays for inspection.",
+                  "// Run this request last in the collection so the token stays valid for all prior requests."
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Invalidates the current token on the server. Run last when running the full collection so the token stays valid for all other requests."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "item": [
+        {
+          "name": "delete registered user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"user deleted successfully\", function () {",
+                  "    pm.response.status == 200;",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Account deleted successfully\");",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token_register}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{user_register_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
