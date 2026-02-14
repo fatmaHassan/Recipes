@@ -13,7 +13,11 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Recipes'),
+
+    'description' => env('APP_DESCRIPTION', 'Discover delicious recipes, save your favorites, and explore cooking ideas. Browse our collection of curated recipes for every meal and occasion.'),
+
+    'keywords' => env('APP_KEYWORDS', 'recipes, cooking, food, meals, ingredients, favorites, recipe collection'),
 
     /*
     |--------------------------------------------------------------------------
