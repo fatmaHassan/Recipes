@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="$recipe['strMeal'] ?? __('Recipe')">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ $recipe['strMeal'] ?? 'Recipe Details' }}

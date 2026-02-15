@@ -8,10 +8,31 @@ use Illuminate\View\View;
 class GuestLayout extends Component
 {
     /**
+     * Create a new component instance.
+     */
+    public function __construct(
+        public ?string $title = null
+    ) {}
+
+    /**
+     * Get the full page title (page — app name).
+     */
+    public function pageTitle(): string
+    {
+        if ($this->title) {
+            return $this->title . ' — ' . config('app.name');
+        }
+
+        return config('app.name');
+    }
+
+    /**
      * Get the view / contents that represents the component.
      */
     public function render(): View
     {
-        return view('layouts.guest');
+        return view('layouts.guest', [
+            'pageTitle' => $this->pageTitle(),
+        ]);
     }
 }

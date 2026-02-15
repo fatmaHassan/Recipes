@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout :title="__('Home')">
     @auth
         <!-- Logged-in user view -->
         <div class="py-12">
