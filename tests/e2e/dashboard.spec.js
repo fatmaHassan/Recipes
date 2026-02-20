@@ -1,21 +1,25 @@
 import { test, expect } from '@playwright/test';
 import { login } from './auth-helpers.js';
 
+
+const url = '/dashboard';
 test.describe('Dashboard', {
   tag: '@smoke',
 }, () => {
   test.beforeEach(async ({ page }) => {
-    // Login before each test
+    //  before each test
     await login(page);
-  });
-
-  test('should display dashboard after login', async ({ page }) => {
-    // Navigate to dashboard explicitly
-    await page.goto('/dashboard');
-    
+    // navigate to dashboard page before each test
+    await page.goto(url);
     // Wait for page to load
     await page.waitForLoadState('networkidle');
-    
+  });
+
+  test('Should have correct title', async({ page }) => {
+  await expect(page).toHaveTitle('Dashboard — Recipes');
+      });
+
+  test('should display dashboard after login', async ({ page }) => {
     // Check for dashboard content - could be on dashboard or redirected to home
     const currentURL = page.url();
     if (currentURL.includes('/dashboard')) {
@@ -29,9 +33,6 @@ test.describe('Dashboard', {
   });
 
   test('should display navigation links for authenticated users', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
-    
     // Check for authenticated navigation links in the nav element
     const nav = page.locator('nav');
     await expect(nav).toBeVisible();

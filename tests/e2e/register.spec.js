@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
 test.describe('Register', () => {
+
+  test('Should have correct title', async({ page }) => {
+    await page.goto('/register');
+    await expect(page).toHaveTitle('Create Account — Recipes');
+      });
+
   test('register fields should be visible', async ({ page }) => {
     await page.goto('/register');
     await expect(page.locator('input[name="name"]')).toBeVisible();
