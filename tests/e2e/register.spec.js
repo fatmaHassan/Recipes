@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-test.describe('Register', () => {
+test.describe('Register',{
+  tag: '@smoke',
+}, () => {
 
   test('Should have correct title', async({ page }) => {
     await page.goto('/register');

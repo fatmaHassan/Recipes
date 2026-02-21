@@ -103,7 +103,14 @@ jobs:
       - name: Build assets
         run: npm run build
 
-      - name: Run Playwright tests
+      - name: Run Playwright smoke tests (PR)
+        if: github.event_name == 'pull_request'
+        run: npx playwright test --project=chromium --grep @smoke
+        env:
+          CI: true
+
+      - name: Run Playwright full suite (push)
+        if: github.event_name == 'push'
         run: npx playwright test --project=chromium
         env:
           CI: true
