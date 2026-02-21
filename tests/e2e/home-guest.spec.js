@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Home Page -Guest View', {
-  tag: '@smoke',
-}, () => {
+test.describe('Home Page -Guest View',  () => {
 
   test.beforeEach(async ({ page }) => {
 // navigate to home page before each test
@@ -11,7 +9,7 @@ test.describe('Home Page -Guest View', {
 
 
   test('Should have correct title', async({ page }) => {
-await expect(page).toHaveTitle('Recipes — Home');
+await expect(page).toHaveTitle('Home — Recipes');
   });
 
   test('should load the home page successfully', async ({ page }) => {

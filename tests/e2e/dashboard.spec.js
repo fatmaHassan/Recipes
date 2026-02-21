@@ -3,9 +3,7 @@ import { login } from './auth-helpers.js';
 
 
 const url = '/dashboard';
-test.describe('Dashboard', {
-  tag: '@smoke',
-}, () => {
+test.describe('Dashboard',  () => {
   test.beforeEach(async ({ page }) => {
     //  before each test
     await login(page);
@@ -19,7 +17,7 @@ test.describe('Dashboard', {
   await expect(page).toHaveTitle('Dashboard — Recipes');
       });
 
-  test('should display dashboard after login', async ({ page }) => {
+  test('should display dashboard after login @smoke', async ({ page }) => {
     // Check for dashboard content - could be on dashboard or redirected to home
     const currentURL = page.url();
     if (currentURL.includes('/dashboard')) {
@@ -32,7 +30,7 @@ test.describe('Dashboard', {
     }
   });
 
-  test('should display navigation links for authenticated users', async ({ page }) => {
+  test('should display navigation links for authenticated users @smoke', async ({ page }) => {
     // Check for authenticated navigation links in the nav element
     const nav = page.locator('nav');
     await expect(nav).toBeVisible();
