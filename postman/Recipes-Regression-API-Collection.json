@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "26266159-79ac-4958-87a7-b64555eea330",
-    "name": "Recipes API Collection",
+    "_postman_id": "4b13e670-8488-4064-be36-ccbc8bca7433",
+    "name": "Recipes  Regression API Collection Copy",
     "description": "Complete API collection for testing TheMealDB API endpoints used in the Recipes application.\n\nThis collection includes:\n- Recipe search by ingredient\n- Get all ingredients list\n- Get recipe details by ID\n\nAll requests include automated tests and assertions.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "2200196",
-    "_collection_link": "https://go.postman.co/collection/2200196-26266159-79ac-4958-87a7-b64555eea330?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/2200196-4b13e670-8488-4064-be36-ccbc8bca7433?source=collection_link"
   },
   "item": [
     {
@@ -125,10 +125,6 @@
               "response": []
             }
           ]
-        },
-        {
-          "name": "logout",
-          "item": []
         }
       ]
     },
