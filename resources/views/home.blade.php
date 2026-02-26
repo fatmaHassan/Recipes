@@ -67,6 +67,39 @@
                             </div>
                         @endif
 
+                        <!-- Explore by Cuisine Section -->
+                        @if(isset($featuredCuisines) && count($featuredCuisines) > 0)
+                            <div class="mt-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h2 class="text-2xl font-bold text-gray-800">Explore by Cuisine</h2>
+                                    <a href="{{ route('cuisines.index') }}" class="text-sm text-gray-600 hover:text-black">
+                                        View all →
+                                    </a>
+                                </div>
+                                <div class="grid grid-cols-4 md:grid-cols-8 gap-3">
+                                    @foreach($featuredCuisines as $cuisine)
+                                        <a href="{{ route('cuisines.show', $cuisine['name']) }}" 
+                                           class="card card-hover p-3 text-center group transition-all duration-200 hover:scale-105">
+                                            @if($cuisine['code'])
+                                                <img 
+                                                    src="https://flagcdn.com/w40/{{ $cuisine['code'] }}.png"
+                                                    srcset="https://flagcdn.com/w80/{{ $cuisine['code'] }}.png 2x"
+                                                    width="40"
+                                                    height="30"
+                                                    alt="{{ $cuisine['name'] }}"
+                                                    class="mx-auto rounded shadow-sm mb-2"
+                                                    loading="lazy"
+                                                >
+                                            @endif
+                                            <span class="text-xs font-medium text-gray-700 group-hover:text-black">
+                                                {{ $cuisine['name'] }}
+                                            </span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <!-- Random Meals Section -->
                         @if(isset($randomMeals) && count($randomMeals) > 0)
                             <div class="mt-8">
@@ -145,6 +178,44 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Explore by Cuisine Section -->
+            @if(isset($featuredCuisines) && count($featuredCuisines) > 0)
+                <div class="bg-gray-50 py-16">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-10">
+                            <h2 class="text-4xl font-bold text-black mb-4">Explore World Cuisines</h2>
+                            <p class="text-gray-600 text-lg">Discover recipes from around the globe</p>
+                        </div>
+                        <div class="grid grid-cols-4 md:grid-cols-8 gap-4 mb-8">
+                            @foreach($featuredCuisines as $cuisine)
+                                <a href="{{ route('cuisines.show', $cuisine['name']) }}" 
+                                   class="card card-hover p-4 text-center group transition-all duration-200 hover:scale-105 bg-white">
+                                    @if($cuisine['code'])
+                                        <img 
+                                            src="https://flagcdn.com/w40/{{ $cuisine['code'] }}.png"
+                                            srcset="https://flagcdn.com/w80/{{ $cuisine['code'] }}.png 2x"
+                                            width="40"
+                                            height="30"
+                                            alt="{{ $cuisine['name'] }}"
+                                            class="mx-auto rounded shadow-sm mb-2"
+                                            loading="lazy"
+                                        >
+                                    @endif
+                                    <span class="text-xs font-medium text-gray-700 group-hover:text-black">
+                                        {{ $cuisine['name'] }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                        <div class="text-center">
+                            <a href="{{ route('cuisines.index') }}" class="btn-secondary inline-block">
+                                View All Cuisines →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- Random Meals Section -->
             @if(isset($randomMeals) && count($randomMeals) > 0)
