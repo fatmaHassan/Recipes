@@ -111,7 +111,7 @@ jobs:
 
       - name: Run Playwright full suite (push)
         if: github.event_name == 'push'
-        run: npx playwright test --project=chromium
+        run: npx playwright test --project=chromium --project=firefox --project=webkit
         env:
           CI: true
 
