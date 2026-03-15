@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AllergyController;
+use App\Http\Controllers\Api\CuisineController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\IngredientController;
@@ -25,6 +26,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register'])->name('api.register');
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::get('/recipes/random', [RecipeController::class, 'random'])->name('api.recipes.random');
+
+// Public cuisine routes
+Route::get('/cuisines', [CuisineController::class, 'index'])->name('api.cuisines.index');
+Route::get('/cuisines/{cuisine}', [CuisineController::class, 'show'])->name('api.cuisines.show');
 
 // Protected API routes (authentication required)
 Route::middleware(['auth:sanctum'])->group(function () {

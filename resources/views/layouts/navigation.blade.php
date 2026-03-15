@@ -13,6 +13,46 @@
                 <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                     {{ __('Home') }}
                 </x-nav-link>
+                
+                <!-- Cuisines Dropdown (Public) -->
+                <x-dropdown align="left" width="64">
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center px-3 py-1.5 rounded text-sm font-medium {{ request()->routeIs('cuisines.*') ? 'text-black bg-white shadow-sm font-semibold' : 'text-gray-600 hover:text-gray-900' }} focus:outline-none transition duration-150 ease-in-out">
+                            {{ __('Cuisines') }}
+                            <span class="ml-1 text-xs">▼</span>
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <div class="px-4 py-2 border-b border-gray-200">
+                            <a href="{{ route('cuisines.index') }}" class="text-sm font-semibold text-black hover:underline">
+                                View All Cuisines →
+                            </a>
+                        </div>
+                        <div class="max-h-80 overflow-y-auto py-1">
+                            @php
+                                $cuisines = app(\App\Services\RecipeService::class)->getCuisinesWithFlags();
+                            @endphp
+                            @foreach($cuisines as $cuisine)
+                                @if($cuisine['code'])
+                                    <a href="{{ route('cuisines.show', $cuisine['name']) }}" 
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->is('cuisines/' . $cuisine['name']) ? 'bg-gray-100 font-medium' : '' }}">
+                                        <img 
+                                            src="https://flagcdn.com/w20/{{ $cuisine['code'] }}.png"
+                                            width="20"
+                                            height="15"
+                                            alt="{{ $cuisine['name'] }}"
+                                            class="mr-2 rounded-sm"
+                                            loading="lazy"
+                                        >
+                                        {{ $cuisine['name'] }}
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </x-slot>
+                </x-dropdown>
+
                 @auth
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}

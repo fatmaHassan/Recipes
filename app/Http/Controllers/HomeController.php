@@ -20,6 +20,14 @@ class HomeController extends Controller
         // Get random meals for both logged in users and guests
         $randomMeals = $this->recipeService->getRandomMeals(6);
         
+        // Get featured cuisines with flags (limit to 8 popular ones for the home page)
+        $allCuisines = $this->recipeService->getCuisinesWithFlags();
+        $featuredCuisineNames = ['Italian', 'Mexican', 'Chinese', 'Indian', 'Japanese', 'French', 'Thai', 'American'];
+        $featuredCuisines = array_filter($allCuisines, function ($cuisine) use ($featuredCuisineNames) {
+            return in_array($cuisine['name'], $featuredCuisineNames);
+        });
+        $featuredCuisines = array_values($featuredCuisines);
+        
         // Filter by allergies if user is logged in
         if (Auth::check()) {
             $user = Auth::user();
@@ -34,9 +42,9 @@ class HomeController extends Controller
                 ->limit(3)
                 ->get();
 
-            return view('home', compact('ingredientsCount', 'savedRecipesCount', 'favoritesCount', 'recentRecipes', 'randomMeals'));
+            return view('home', compact('ingredientsCount', 'savedRecipesCount', 'favoritesCount', 'recentRecipes', 'randomMeals', 'featuredCuisines'));
         }
 
-        return view('home', compact('randomMeals'));
+        return view('home', compact('randomMeals', 'featuredCuisines'));
     }
 }

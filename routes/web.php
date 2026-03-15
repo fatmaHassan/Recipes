@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\CuisineController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Public cuisine routes
+Route::get('/cuisines', [CuisineController::class, 'index'])->name('cuisines.index');
+Route::get('/cuisines/{cuisine}', [CuisineController::class, 'show'])->name('cuisines.show');
 
 // Authentication routes (from Breeze)
 require __DIR__.'/auth.php';

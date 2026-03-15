@@ -346,4 +346,134 @@ class RecipeService
 
         return $ingredients;
     }
+
+    /**
+     * Get all available cuisines/areas from TheMealDB
+     */
+    public function getAllCuisines(): array
+    {
+        $cacheKey = 'themealdb_all_cuisines';
+        
+        return Cache::remember($cacheKey, 86400, function () {
+            try {
+                $response = Http::get($this->baseUrl . 'list.php', [
+                    'a' => 'list'
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $meals = $data['meals'] ?? [];
+                    
+                    $cuisines = array_map(function ($item) {
+                        return $item['strArea'] ?? '';
+                    }, $meals);
+                    
+                    return array_filter($cuisines);
+                }
+
+                Log::warning('TheMealDB API request failed for cuisines list', [
+                    'status' => $response->status()
+                ]);
+
+                return [];
+            } catch (\Exception $e) {
+                Log::error('Error fetching cuisines list from TheMealDB', [
+                    'error' => $e->getMessage()
+                ]);
+
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Search recipes by cuisine/area
+     */
+    public function searchByCuisine(string $cuisine): array
+    {
+        $cacheKey = "recipe_cuisine_{$cuisine}";
+        
+        return Cache::remember($cacheKey, 3600, function () use ($cuisine) {
+            try {
+                $response = Http::get($this->baseUrl . 'filter.php', [
+                    'a' => $cuisine
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $meals = $data['meals'] ?? null;
+                    
+                    if ($meals === null) {
+                        return [];
+                    }
+                    
+                    return $meals;
+                }
+
+                Log::warning('TheMealDB API request failed', [
+                    'cuisine' => $cuisine,
+                    'status' => $response->status()
+                ]);
+
+                return [];
+            } catch (\Exception $e) {
+                Log::error('Error fetching recipes by cuisine from TheMealDB', [
+                    'cuisine' => $cuisine,
+                    'error' => $e->getMessage()
+                ]);
+
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Get cuisines with their country codes for flag display
+     */
+    public function getCuisinesWithFlags(): array
+    {
+        $cuisines = $this->getAllCuisines();
+        
+        $flagMap = [
+            'American' => 'us',
+            'British' => 'gb',
+            'Canadian' => 'ca',
+            'Chinese' => 'cn',
+            'Croatian' => 'hr',
+            'Dutch' => 'nl',
+            'Egyptian' => 'eg',
+            'Filipino' => 'ph',
+            'French' => 'fr',
+            'Greek' => 'gr',
+            'Indian' => 'in',
+            'Irish' => 'ie',
+            'Italian' => 'it',
+            'Jamaican' => 'jm',
+            'Japanese' => 'jp',
+            'Kenyan' => 'ke',
+            'Malaysian' => 'my',
+            'Mexican' => 'mx',
+            'Moroccan' => 'ma',
+            'Polish' => 'pl',
+            'Portuguese' => 'pt',
+            'Russian' => 'ru',
+            'Spanish' => 'es',
+            'Thai' => 'th',
+            'Tunisian' => 'tn',
+            'Turkish' => 'tr',
+            'Ukrainian' => 'ua',
+            'Vietnamese' => 'vn',
+            'Unknown' => null,
+        ];
+
+        $result = [];
+        foreach ($cuisines as $cuisine) {
+            $result[] = [
+                'name' => $cuisine,
+                'code' => $flagMap[$cuisine] ?? null,
+            ];
+        }
+
+        return $result;
+    }
 }
