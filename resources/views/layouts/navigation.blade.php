@@ -3,8 +3,14 @@
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
             <div class="flex-shrink-0">
-                <a href="{{ route('home') }}" class="text-lg font-bold text-black">
-                    Recipes
+                <a href="{{ route('home') }}" class="flex items-center text-lg font-bold text-black">
+                    <img
+                        src="{{ asset('logo.svg') }}"
+                        alt="{{ __('Recipes logo') }}"
+                        class="h-9 w-9 object-contain mr-2"
+                        loading="lazy"
+                    >
+                    <span>Recipes</span>
                 </a>
             </div>
 

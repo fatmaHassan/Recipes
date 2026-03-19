@@ -41,12 +41,14 @@
                     @endforeach
                 </div>
             @else
-                <div class="card p-8 text-center">
-                    <div class="text-6xl mb-4">📖</div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">No saved recipes yet</h3>
-                    <p class="text-gray-600 mb-6">Start searching for recipes and save your favorites!</p>
-                    <a href="{{ route('dashboard') }}" class="btn-primary">
-                        Go to Dashboard →
+                <div class="card p-8 text-center bg-gray-50 border border-gray-200">
+                    <div class="text-6xl mb-4">🍽️</div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">You haven't saved any recipes yet</h3>
+                    <p class="text-gray-600 mb-6">
+                        Head to <span class="font-semibold text-black">Dashboard</span>, pick a few ingredients, and save recipes you love.
+                    </p>
+                    <a href="{{ route('dashboard') }}" class="btn-primary inline-flex items-center gap-2">
+                        Pick up some recipes →
                     </a>
                 </div>
             @endif

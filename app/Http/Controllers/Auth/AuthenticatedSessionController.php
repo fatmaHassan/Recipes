@@ -28,7 +28,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Default landing after login: user's saved recipes.
+        return redirect()->intended(route('my-recipes.index', absolute: false));
     }
 
     /**

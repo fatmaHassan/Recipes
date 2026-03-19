@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register'])->name('api.register');
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::get('/recipes/random', [RecipeController::class, 'random'])->name('api.recipes.random');
+Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('api.recipes.show');
 
 // Public cuisine routes
 Route::get('/cuisines', [CuisineController::class, 'index'])->name('api.cuisines.index');
@@ -58,7 +59,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Recipes
     // Note: Only POST is used for search since it requires ingredients in the request body
     Route::post('/recipes/search', [RecipeController::class, 'search'])->name('api.recipes.search');
-    Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('api.recipes.show');
     Route::post('/recipes/save', [RecipeController::class, 'save'])->name('api.recipes.save');
     Route::post('/recipes/{recipeId}/favorite', [RecipeController::class, 'toggleFavorite'])->name('api.recipes.favorite');
     

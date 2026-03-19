@@ -63,8 +63,14 @@
     <body class="font-sans text-gray-900 antialiased bg-white">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
             <div class="mb-6">
-                <a href="/" class="text-2xl font-bold text-black">
-                    Recipes
+                <a href="/" class="flex items-center text-2xl font-bold text-black">
+                    <img
+                        src="{{ asset('logo.svg') }}"
+                        alt="{{ __('Recipes logo') }}"
+                        class="h-10 w-10 object-contain mr-3"
+                        loading="lazy"
+                    >
+                    <span>Recipes</span>
                 </a>
             </div>
 
