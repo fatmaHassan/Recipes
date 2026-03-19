@@ -12,6 +12,9 @@
         <meta name="author" content="{{ config('app.name') }}">
         <link rel="canonical" href="{{ url()->current() }}">
 
+        {{-- Favicon --}}
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+
         {{-- Open Graph / Facebook --}}
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
