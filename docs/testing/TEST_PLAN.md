@@ -194,7 +194,7 @@ npx cypress open
 ### 4.3 CI/CD Integration
 
 Tests are configured to run in CI/CD pipeline:
-- **Location**: `.github/workflows/tests.yml`
+- **Location**: `.github/workflows/deploy.yml`
 - **Retry Policy**: Failed tests retry 2 times in CI
 - **Parallel Execution**: Sequential execution in CI (1 worker)
 

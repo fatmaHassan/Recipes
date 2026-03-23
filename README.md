@@ -140,7 +140,7 @@ Detailed QA documentation:
 
 GitHub Actions workflow file:
 
-* `.github/workflows/tests.yml`
+* `.github/workflows/deploy.yml`
 
 This workflow runs automatically on every `push` and `pull_request` to `main`, `master`, and `develop`.
 
