@@ -40,14 +40,14 @@ npx playwright test --project=webkit
 
 - `example.spec.js` - Basic home page tests
 - `dashboard.spec.js` - Dashboard tests (requires authentication)
-- `auth-helpers.js` - Authentication helper functions
+- `helpers/auth.helper.js` - Authentication helper functions
 
 ## Authentication Helpers
 
 Use the authentication helpers for tests that require login:
 
 ```javascript
-import { login, register } from './auth-helpers.js';
+import { login, register } from './helpers/auth.helper.js';
 
 test('my test', async ({ page }) => {
   await login(page, 'test@example.com', 'password');
@@ -58,7 +58,7 @@ test('my test', async ({ page }) => {
 Or use the authenticated page fixture:
 
 ```javascript
-import { test } from './auth-helpers.js';
+import { test } from './helpers/auth.helper.js';
 
 test('my test', async ({ authenticatedPage }) => {
   // authenticatedPage is already logged in

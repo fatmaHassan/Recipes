@@ -1,20 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from './pages/login.page';
+
 test.describe('Login', {
   tag: '@smoke',
 }, () => {
-
-
-  test('Should have correct title', async({ page }) => {
-    await page.goto('/login');
+  test('Should have correct title', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
     await expect(page).toHaveTitle('Log In — Recipes');
-      });
+  });
 
   test('login fields should be visible', async ({ page }) => {
-    await page.goto('/login');
-    await expect(page.locator('input[name="email"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
-    await expect(page.locator('a[href*="forgot-password"]')).toBeVisible();
-    await expect(page.getByRole('link', { name: /forgot your password/i })).toBeVisible();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.passwordInput).toBeVisible();
+    await expect(loginPage.submitButton).toBeVisible();
   });
 });

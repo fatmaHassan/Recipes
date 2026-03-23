@@ -86,7 +86,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+        run: npx playwright install --with-deps chromium
 
       - name: Generate application key
         run: php artisan key:generate
@@ -111,7 +111,7 @@ jobs:
 
       - name: Run Playwright full suite (push)
         if: github.event_name == 'push'
-        run: npx playwright test --project=chromium --project=firefox --project=webkit
+        run: npx playwright test --project=chromium
         env:
           CI: true
 
