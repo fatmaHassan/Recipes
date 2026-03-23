@@ -105,8 +105,14 @@ npm run test:e2e
 ### API Tests (Postman Collection)
 
 API tests are executed via a Postman collection (run in CI):
-smoke tests : npx newman run postman/Recipes-Smoke-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
- regression tests : npx newman run postman/Recipes-Regression-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
+
+```bash
+# Smoke tests
+npx newman run postman/Recipes-Smoke-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
+
+# Regression tests
+npx newman run postman/Recipes-Regression-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
+```
 
 * Covers core endpoints and validation scenarios
 * Integrated into GitHub Actions workflow
