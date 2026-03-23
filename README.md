@@ -1,125 +1,163 @@
-# Recipes Application
+# 🍽️ Recipes Application
 
-A Laravel application that helps you discover recipes based on ingredients you have at home, with allergy filtering.
+A Laravel application that helps users discover recipes based on available ingredients, with allergy filtering.
 
-## Features
+---
 
-- Manage your home ingredients
-- Add and manage allergies
-- Search recipes from TheMealDB API
-- Filter recipes by allergies
-- Save favorite recipes
-- Beautiful, modern UI with Tailwind CSS
+## 🧪 Testing (QA Focus)
 
-## Requirements
+This project demonstrates a **structured QA approach with multiple testing layers**:
 
-- PHP 8.2+
-- Composer
-- Node.js 20+ (for building assets) or Node.js 14+ (with CDN fallback)
-- MySQL/PostgreSQL or SQLite
+* **PHPUnit** → unit & feature tests (backend logic)
+* **Playwright** → end-to-end tests (real user workflows)
+* **Postman API Tests** → API validation via collection (integrated in CI)
 
-## Installation
+### Key QA Practices
+
+* Page Object Model (POM) used in Playwright tests for maintainability
+* Coverage of critical user flows (search, favorites, ingredients)
+* API testing using Postman collections
+* Validation of edge cases and error handling
+* Automated testing via GitHub Actions (CI/CD)
+
+---
+
+## ✨ Features
+
+* Manage your home ingredients
+* Add and manage allergies
+* Search recipes from TheMealDB API
+* Filter recipes by allergies
+* Save favorite recipes
+* Modern UI with Tailwind CSS
+
+---
+
+## ⚙️ Requirements
+
+* PHP 8.2+
+* Composer
+* Node.js 20+ (or 14+ with fallback)
+* MySQL/PostgreSQL or SQLite
+
+---
+
+## 🚀 Installation
 
 1. Clone the repository
-2. Install PHP dependencies:
+
+2. Install dependencies:
+
    ```bash
    composer install
-   ```
-
-3. Install Node dependencies:
-   ```bash
    npm install
    ```
 
-4. Copy environment file:
+3. Environment setup:
+
    ```bash
    cp .env.example .env
-   ```
-
-5. Generate application key:
-   ```bash
    php artisan key:generate
    ```
 
-6. Run migrations:
+4. Run migrations:
+
    ```bash
    php artisan migrate
    ```
 
-7. Build assets (if Node.js 20+):
+5. Build assets:
+
    ```bash
    npm run build
    ```
-   
-   If you have Node.js < 20, the postinstall script will create a minimal manifest and the app will use CDN fallbacks.
 
-8. Start the development server:
+   (Node.js < 20 will use CDN fallback automatically)
+
+6. Start server:
+
    ```bash
    php artisan serve
    ```
 
-## Asset Building
+---
 
-The application includes a smart build script (`scripts/build-assets.js`) that:
-- Attempts to build assets with Vite if Node.js 20+ is available
-- Creates a minimal manifest if the build fails (Node.js < 20)
-- Automatically runs on `npm install` via the `postinstall` script
+## 🧪 Running Tests
 
-For production deployments, ensure Node.js 20+ is available for proper asset building.
+### PHPUnit
 
-## Testing
-
-### PHPUnit Tests
 ```bash
 php artisan test
 ```
+
 or
+
 ```bash
 composer test
 ```
 
-### Playwright E2E Tests
+### Playwright (E2E)
+
 ```bash
 npm run test:e2e
 ```
 
-For more Playwright testing options, see [tests/e2e/README.md](tests/e2e/README.md).
+### API Tests (Postman Collection)
 
-### Cypress Tests (requires Node.js 20+)
-```bash
-npm run cypress:open
-```
+API tests are executed via a Postman collection (run in CI):
+smoke tests : npx newman run postman/Recipes-Smoke-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
+ regression tests : npx newman run postman/Recipes-Regression-API-Collection.json -e postman/Recipes-Environment.json --env-var "base_url=http://127.0.0.1:8000/api"
 
-### Test Documentation
+* Covers core endpoints and validation scenarios
+* Integrated into GitHub Actions workflow
 
-For comprehensive test documentation, see:
-- [Test Plan](docs/testing/TEST_PLAN.md) - Test strategy, coverage, and execution plan
-- [Test Cases](docs/testing/TEST_CASES.md) - Detailed test cases organized by feature area
-  - [Authentication & Authorization](docs/testing/test-cases/01-authentication.md)
-  - [Recipe Management](docs/testing/test-cases/02-recipes.md)
-  - [Ingredient Management](docs/testing/test-cases/03-ingredients.md)
-  - [User Profile](docs/testing/test-cases/04-profile.md)
-  - [Favorites](docs/testing/test-cases/05-favorites.md)
-  - [Navigation & UI](docs/testing/test-cases/06-navigation-ui.md)
-  - [Unit Tests](docs/testing/test-cases/07-unit-tests.md)
+---
 
-## CI/CD
+## 📄 Test Documentation
 
-This project includes GitHub Actions workflows that automatically run tests on push and pull requests:
+Detailed QA documentation:
 
-- **PHPUnit Tests**: Runs all PHP unit and feature tests
-- **Playwright E2E Tests**: Runs end-to-end tests in Chromium browser
+* [Test Plan](docs/testing/TEST_PLAN.md)
+* [Test Cases](docs/testing/TEST_CASES.md)
 
-The workflow is configured in `.github/workflows/tests.yml` and will:
-1. Set up PHP 8.2 and Node.js 20
-2. Install dependencies
-3. Set up the database and run migrations
-4. Run PHPUnit tests
-5. Run Playwright E2E tests
-6. Upload test reports and artifacts on failure
+  * Authentication & Authorization
+  * Recipe Management
+  * Ingredient Management
+  * User Profile
+  * Favorites
+  * Navigation & UI
+  * Unit Tests
 
-Test artifacts (screenshots, videos, HTML reports) are automatically uploaded when tests fail and are available for 30 days.
+---
 
-## License
+## 🔄 CI/CD
 
-This project is open-sourced software.
+GitHub Actions workflow file:
+
+* `.github/workflows/tests.yml`
+
+This workflow runs automatically on every `push` and `pull_request` to `main`, `master`, and `develop`.
+
+Jobs included in this workflow:
+
+* `phpunit` → Runs Laravel unit and feature tests (`composer test`)
+* `playwright` → Runs E2E tests (smoke suite on PRs, full suite on pushes)
+* `api-tests` → Runs Newman API tests (smoke on PRs, regression on pushes)
+
+Artifacts are uploaded from CI for debugging (for example Playwright reports and Newman reports).
+
+---
+
+## 🏗️ Asset Building
+
+The application includes a smart build script (`scripts/build-assets.js`) that:
+
+* Uses Vite when Node.js 20+ is available
+* Falls back to a minimal manifest if not
+* Runs automatically on `npm install`
+
+---
+
+## 📜 License
+
+Open-source project.
