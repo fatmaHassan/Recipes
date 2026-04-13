@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\CuisineController;
+use App\Http\Controllers\CustomRecipeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
@@ -24,26 +25,34 @@ require __DIR__.'/auth.php';
 // Authenticated routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Ingredients - specific routes must come before resource route
     Route::get('/ingredients/search', [IngredientController::class, 'search'])->name('ingredients.search');
     Route::post('/ingredients/check', [IngredientController::class, 'check'])->name('ingredients.check');
     Route::resource('ingredients', IngredientController::class);
-    
+
     // Allergies
     Route::resource('allergies', AllergyController::class);
-    
+
     // Recipes (search and actions require auth) - must come before /recipes/{id} route
     Route::match(['get', 'post'], '/recipes/search', [RecipeController::class, 'search'])->name('recipes.search');
     Route::post('/recipes/save', [RecipeController::class, 'save'])->name('recipes.save');
     Route::post('/recipes/{recipeId}/favorite', [RecipeController::class, 'toggleFavorite'])->name('recipes.favorite');
-    
+
     // My Recipes
     Route::get('/my-recipes', [MyRecipesController::class, 'index'])->name('my-recipes.index');
-    
+
+    // Custom recipes (user-authored, not from TheMealDB)
+    Route::get('/custom-recipes', [CustomRecipeController::class, 'index'])->name('custom-recipes.index');
+    Route::get('/custom-recipes/create', [CustomRecipeController::class, 'create'])->name('custom-recipes.create');
+    Route::post('/custom-recipes', [CustomRecipeController::class, 'store'])->name('custom-recipes.store');
+    Route::get('/custom-recipes/{custom_recipe}', [CustomRecipeController::class, 'show'])->name('custom-recipes.show');
+    Route::get('/custom-recipes/{custom_recipe}/edit', [CustomRecipeController::class, 'edit'])->name('custom-recipes.edit');
+    Route::patch('/custom-recipes/{custom_recipe}', [CustomRecipeController::class, 'update'])->name('custom-recipes.update');
+
     // Favorites
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
-    
+
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

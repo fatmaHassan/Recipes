@@ -12,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -61,5 +61,10 @@ class User extends Authenticatable
     public function savedRecipes(): HasMany
     {
         return $this->hasMany(SavedRecipe::class);
+    }
+
+    public function customRecipes(): HasMany
+    {
+        return $this->hasMany(CustomRecipe::class);
     }
 }

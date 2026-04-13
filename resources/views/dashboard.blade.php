@@ -7,6 +7,12 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="card mb-6">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold mb-4 text-black">Select Ingredients to Search Recipes</h3>
@@ -49,6 +55,12 @@
                         </a>
                         <a href="{{ route('my-recipes.index') }}" class="btn-secondary">
                             My Recipes
+                        </a>
+                        <a href="{{ route('custom-recipes.index') }}" class="btn-secondary">
+                            My custom recipes
+                        </a>
+                        <a href="{{ route('custom-recipes.create') }}" class="btn-secondary">
+                            Add custom recipe
                         </a>
                         <a href="{{ route('favorites.index') }}" class="btn-secondary">
                             Favorites
