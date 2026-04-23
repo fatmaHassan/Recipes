@@ -4,8 +4,10 @@ import { DashboardPage } from './pages/dashboard.page';
 
 
 test.describe('Dashboard',  () => {
+  let dashboardPage;
+
   test.beforeEach(async ({ page }) => {
-    const dashboardPage = new DashboardPage(page);
+    dashboardPage = new DashboardPage(page);
     await login(page);
     await dashboardPage.goto();
     await dashboardPage.waitUntilReady();
@@ -16,7 +18,6 @@ test.describe('Dashboard',  () => {
   });
 
   test('should display dashboard after login @smoke', async ({ page }) => {
-    const dashboardPage = new DashboardPage(page);
     // Check for dashboard content - could be on dashboard or redirected to home
     const currentURL = page.url();
     if (currentURL.includes('/dashboard')) {
@@ -28,7 +29,6 @@ test.describe('Dashboard',  () => {
   });
 
   test('should display navigation links for authenticated users @smoke', async ({ page }) => {
-    const dashboardPage = new DashboardPage(page);
     await expect(dashboardPage.navigation).toBeVisible();
     
     // Check for navigation links - they might be in the nav

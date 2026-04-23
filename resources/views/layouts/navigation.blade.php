@@ -66,8 +66,8 @@
                     <x-nav-link :href="route('ingredients.index')" :active="request()->routeIs('ingredients.*')">
                         {{ __('Ingredients') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('allergies.index')" :active="request()->routeIs('allergies.*')">
-                        {{ __('Allergies') }}
+                    <x-nav-link :href="route('custom-recipes.index')" :active="request()->routeIs('custom-recipes.*')">
+                        {{ __('Custom recipes') }}
                     </x-nav-link>
                     <x-nav-link :href="route('my-recipes.index')" :active="request()->routeIs('my-recipes.*')">
                         {{ __('My Recipes') }}
