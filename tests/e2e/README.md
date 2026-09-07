@@ -9,6 +9,9 @@ This directory contains end-to-end tests using Playwright.
 npm run test:e2e
 ```
 
+The E2E scripts reset and seed the dedicated `recipes_e2e` database before
+running. They do not use the development `recipes` database.
+
 ### Run tests in UI mode (interactive)
 ```bash
 npm run test:e2e:ui
@@ -68,17 +71,37 @@ test('my test', async ({ authenticatedPage }) => {
 
 ## Setup
 
-Before running tests, make sure you have a test user in your database:
+The Playwright suite uses a separate database named `recipes_e2e`. Create a
+local E2E environment file once:
 
 ```bash
-# Run migrations and seed the test user
-php artisan migrate:fresh --seed
+cp .env.e2e.example .env.e2e
+php artisan key:generate --env=e2e
 ```
+
+Adjust the PostgreSQL username, password, host, and port in `.env.e2e` if
+they differ on your machine. Then create the database if it does not exist:
+
+```bash
+createdb recipes_e2e
+```
+
+Before each Playwright run, the test command runs:
+
+```bash
+php artisan migrate:fresh --seed --env=e2e
+```
+
+This command is intentionally destructive, but it targets only `recipes_e2e`.
+Never run it without `--env=e2e` when you need to preserve development data.
 
 This will create a test user with:
 - Email: `test@example.com`
 - Password: `password`
 - Email verified: Yes
+
+The seeded user is shared by authenticated page tests. Registration tests
+should use a unique email address instead of this shared fixture.
 
 ## Configuration
 

@@ -102,6 +102,10 @@ composer test
 npm run test:e2e
 ```
 
+Playwright uses the separate `recipes_e2e` database. Create `.env.e2e` from
+`.env.e2e.example` before the first run. Each E2E command resets and seeds
+that database; the development `recipes` database is not modified.
+
 ### API Tests (Postman Collection)
 
 API tests are executed via a Postman collection (run in CI):

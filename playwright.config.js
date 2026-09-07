@@ -61,7 +61,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'php artisan serve',
+    command: 'php artisan serve --env=e2e',
     url: 'http://localhost:8000',
     reuseExistingServer: !process.env.CI,
   },

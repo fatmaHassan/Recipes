@@ -8,18 +8,15 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
+import { LoginPage } from '../pages/login.page'
+import { RegisterPage } from '../pages/register.page'
+
 Cypress.Commands.add('login', (email = 'test@example.com', password = 'password') => {
-  cy.visit('/login')
-  cy.get('input[name="email"]').type(email)
-  cy.get('input[name="password"]').type(password)
-  cy.get('button[type="submit"]').click()
+  const page = new LoginPage()
+  page.login(email, password)
 })
 
 Cypress.Commands.add('register', (name = 'Test User', email = 'test@example.com', password = 'password') => {
-  cy.visit('/register')
-  cy.get('input[name="name"]').type(name)
-  cy.get('input[name="email"]').type(email)
-  cy.get('input[name="password"]').type(password)
-  cy.get('input[name="password_confirmation"]').type(password)
-  cy.get('button[type="submit"]').click()
+  const page = new RegisterPage()
+  page.register({ name, email, password })
 })

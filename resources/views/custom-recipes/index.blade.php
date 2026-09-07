@@ -11,7 +11,7 @@
                 <p class="text-gray-600 text-sm">
                     {{ __('Recipes you created in your account.') }}
                 </p>
-                <a href="{{ route('custom-recipes.create') }}" class="btn-primary">
+                <a href="{{ route('custom-recipes.create') }}" class="btn-primary" name="add-custom-recipe-fixed_button">
                     {{ __('Add custom recipe') }}
                 </a>
             </div>
@@ -52,9 +52,7 @@
                     <p class="text-gray-600 mb-6">
                         {{ __('Add your own recipes from the dashboard to see them here.') }}
                     </p>
-                    <a href="{{ route('custom-recipes.create') }}" class="btn-primary inline-flex items-center gap-2">
-                        {{ __('Add custom recipe') }}
-                    </a>
+                
                 </div>
             @endif
         </div>
