@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">
+<concept id="recipe-website-introduction">
+
+    <title>Introduction to the Recipe Website</title>
+
+    <shortdesc>
+        An overview of the recipe website and its main features.
+    </shortdesc>
+
+    <conbody>
+
+        <p>
+            The recipe website allows users to discover
+            and explore recipes.
+        </p>
+
+        <section>
+            <title>Main Features</title>
+
+            <ul>
+                <li>Browse recipes.</li>
+                <li>Search for recipes.</li>
+                <li>View recipe details.</li>
+            </ul>
+        </section>
+
+    </conbody>
+
+</concept>
