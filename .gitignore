@@ -39,3 +39,6 @@ cypress/screenshots/
 
 #IDE
 /.cursor
+
+# DITA user guide output
+/docs/user-guide/dita/output/
