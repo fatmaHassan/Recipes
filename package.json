@@ -19,7 +19,7 @@
         "test:api:report": "newman run postman/Recipes-API-Collection.json -e postman/Recipes-Environment.json --reporters cli,html --reporter-html-export postman/reports/newman-report.html"
     },
     "devDependencies": {
-        "@playwright/test": "^1.57.0",
+        "@playwright/test": "^1.63.0",
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/vite": "^4.0.0",
         "alpinejs": "^3.4.2",
