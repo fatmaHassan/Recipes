@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<concept class="- topic/topic concept/concept " id="recipe-details">
+
+    <title class="- topic/title ">Viewing Recipe Details</title>
+
+    <shortdesc class="- topic/shortdesc ">
+        Learn what information is available on a recipe details page and what
+        registered users can do with a recipe.
+    </shortdesc>
+
+    <conbody class="- topic/body concept/conbody ">
+
+        <p class="- topic/p ">
+            Select a recipe from the home page or search results to open its
+            details page. The page provides the information needed to
+            understand and prepare the recipe.
+        </p>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Recipe Information</title>
+
+            <p class="- topic/p ">
+                The recipe details page includes the recipe title, cuisine,
+                description, ingredients, and preparation instructions.
+            </p>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Available Actions</title>
+
+            <p class="- topic/p ">
+                Guests can read the recipe details. Registered users can also
+                save the recipe to their favorites or use it as a starting
+                point for managing their personal recipes.
+            </p>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Related Topics</title>
+
+            <p class="- topic/p ">
+                For information about finding recipes, see the Home Page topic.
+                For information about saving and managing recipes, see the
+                Personal Recipe Space topic.
+            </p>
+        </section>
+
+    </conbody>
+
+</concept>

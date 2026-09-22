@@ -1,27 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<concept id="recipe-website-introduction">
+<concept class="- topic/topic concept/concept " id="recipe-website-introduction">
 
-    <title>Introduction to the Recipe Website</title>
+    <title class="- topic/title ">Introduction to the Recipe Website</title>
 
-    <shortdesc>
+    <shortdesc class="- topic/shortdesc ">
         An overview of the recipe website and its main features.
     </shortdesc>
 
-    <conbody>
+    <conbody class="- topic/body concept/conbody ">
 
-        <p>
-            The recipe website allows users to discover
-            and explore recipes.
+        <p class="- topic/p ">
+            The recipe website helps visitors discover and explore recipes,
+            while registered users can save recipes, manage personal recipes,
+            and search by ingredients.
         </p>
 
-        <section>
-            <title>Main Features</title>
+        <section class="- topic/section ">
+            <title class="- topic/title ">How to Use This Guide</title>
 
-            <ul>
-                <li>Browse recipes.</li>
-                <li>Search for recipes.</li>
-                <li>View recipe details.</li>
+            <p class="- topic/p ">
+                This guide is organized by the main areas of the website.
+                Use the sections below as a starting structure for adding
+                detailed topics and task instructions.
+            </p>
+
+            <ul class="- topic/ul ">
+                <li class="- topic/li ">Account access: registration, login, and logout.</li>
+                <li class="- topic/li ">Recipe discovery: the home page, random recipes, and cuisine search.</li>
+                <li class="- topic/li ">Recipe details: viewing recipe information and ingredients.</li>
+                <li class="- topic/li ">Personal recipe space: favorites, custom recipes, and the dashboard.</li>
+                <li class="- topic/li ">Ingredient search: adding ingredients and finding matching recipes.</li>
             </ul>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Home Page</title>
+
+            <p class="- topic/p ">
+                The home page is available to guests and registered users.
+                It provides a starting point for browsing recipes without
+                requiring an account.
+            </p>
+
+            <section class="- topic/section ">
+                <title class="- topic/title ">Random Recipes</title>
+
+                <p class="- topic/p ">
+                    The home page displays six randomly selected recipes.
+                    Select a recipe to open its details and learn more about
+                    its ingredients and preparation.
+                </p>
+            </section>
+
+            <section class="- topic/section ">
+                <title class="- topic/title ">Search by Cuisine</title>
+
+                <p class="- topic/p ">
+                    Use the cuisine search to find recipes from a particular
+                    cuisine. Guests can browse the search results, while
+                    registered users can use the available personal features
+                    for recipes they discover.
+                </p>
+            </section>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Account Access</title>
+
+            <p class="- topic/p ">
+                Add topics here for registering an account, logging in, and
+                logging out.
+            </p>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Recipe Details</title>
+
+            <p class="- topic/p ">
+                Learn how to open a recipe, review its details, and understand
+                its ingredients in the <xref class="- topic/xref " href="../topics/recipe-details.dita">Viewing Recipe Details</xref> topic.
+            </p>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Personal Recipe Space</title>
+
+            <p class="- topic/p ">
+                Add topics here for favorites, the dashboard, custom recipes,
+                and recipes saved to a user's personal collection.
+            </p>
+        </section>
+
+        <section class="- topic/section ">
+            <title class="- topic/title ">Ingredient Search</title>
+
+            <p class="- topic/p ">
+                Add topics here for adding ingredients and searching for
+                recipes by ingredient.
+            </p>
         </section>
 
     </conbody>

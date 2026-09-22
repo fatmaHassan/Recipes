@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map>
-    <title>Recipe Website User Guide</title>
-    <topicref href="../topics/introduction.dita"/>
+<map class="- map/map ">
+    <title class="- topic/title ">Recipe Website User Guide</title>
+    <topicref class="- map/topicref " href="../topics/introduction.dita"/>
+    <topicref class="- map/topicref " href="../topics/recipe-details.dita"/>
 </map>

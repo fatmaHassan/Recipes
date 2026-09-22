@@ -1,6 +1,12 @@
 # Documentation
 
-This directory contains project documentation organized by topic.
+## user-guide
+This directory contains user guide documentation for the Recipes website organized by topic.
+**Dita based documentations** is found under user-guide folder
+
+to run the output install Dita OT  and give as an input the desired output format and the path to the dita map as follows
+
+`/[ path to Dita OT ]/bin/dita --input=docs/user-guide/dita/maps/user-guide.ditamap --format=html5 --output=docs/user-guide/dita/output`
 
 ## Testing
 
