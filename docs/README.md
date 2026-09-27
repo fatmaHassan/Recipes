@@ -19,21 +19,17 @@ to run the output install Dita OT  and give as an input the desired output forma
 ```
 docs/
 ├── README.md (this file)
-└── testing/
+└── testing/ (Dokumentation related to tests)
     ├── TEST_PLAN.md
     ├── TEST_CASES.md
     ├── TEST_PLAN_JIRA.md
     ├── test-cases-export.csv
-    └── test-cases/
-        ├── 01-authentication.md
-        ├── 02-recipes.md
-        ├── 03-ingredients.md
-        ├── 04-profile.md
-        ├── 05-favorites.md
-        ├── 06-navigation-ui.md
-        └── 07-unit-tests.md
-```
+    └── test-cases/ (here the test cases)
+└── user-guide/ ( User Guide dcumentation)
+    ├── dita
+        ├── maps
+        ├── topics
+        ├── output (the dita output is gitignored)
 
----
 
-**Last Updated**: January 2026
+
