@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CuisineController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\IngredientController;
+use App\Http\Controllers\Api\MealDbSyncController;
 use App\Http\Controllers\Api\MyRecipesController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RecipeController;
@@ -27,6 +28,11 @@ Route::post('/register', [AuthController::class, 'register'])->name('api.registe
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::get('/recipes/random', [RecipeController::class, 'random'])->name('api.recipes.random');
 Route::get('/recipes/{id}', [RecipeController::class, 'show'])->name('api.recipes.show');
+
+// MealDB sync trigger (token-protected, not part of the auth group)
+Route::post('/sync/mealdb', [MealDbSyncController::class, 'store'])
+    ->middleware(['sync.token', 'throttle:2,1'])
+    ->name('api.sync.mealdb');
 
 // Public cuisine routes
 Route::get('/cuisines', [CuisineController::class, 'index'])->name('api.cuisines.index');
