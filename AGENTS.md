@@ -6,12 +6,13 @@ Laravel 12 app (PHP 8.2+): Sanctum token API under `routes/api.php` + Blade/Alpi
 
 ```bash
 composer setup                     # full install: deps, .env, key, migrate, npm, build
-composer dev                       # server + queue + pail + vite concurrently
+composer dev                       # server + queue + pail + vite + scheduler concurrently
 composer test                      # config:clear + php artisan test (PHPUnit)
 php artisan test --filter=RecipeApiTest   # single test class/file
 npm run build                      # vite build (force rebuild)
 npm run test:e2e                   # reset+seed e2e DB, then Playwright
 npx playwright test tests/e2e/login.spec.js --project=chromium  # single E2E spec (run npm run test:e2e:setup first)
+php artisan app:mealdb:sync        # sync TheMealDB into local recipes table (re-runnable; --area=X for one cuisine)
 ```
 
 No lint script; `laravel/pint` is installed (`vendor/bin/pint`) but not enforced in CI.
@@ -34,6 +35,8 @@ No lint script; `laravel/pint` is installed (`vendor/bin/pint`) but not enforced
 ## Architecture / conventions
 
 - External recipes: `app/Services/RecipeService.php` hits TheMealDB, cached 1h; returns `[]` on failure or "no results" (API returns `null` meals). Base URL in `config/services.php` (`THEMEALDB_BASE_URL`).
+- Local recipe DB: `php artisan app:mealdb:sync` upserts TheMealDB into `recipes` + `recipe_ingredients` (hash-skipped, re-runnable). Daily 03:00 UTC schedule; runs locally via `composer dev` (schedule:work), on prod via cron-job.org hitting `POST /api/sync/mealdb` with `X-Sync-Token: MEALDB_SYNC_TOKEN` (empty token = endpoint 403s).
+- Recipe read source: `RECIPE_SOURCE=api` (live TheMealDB) or `db` (local tables) — see `config/recipes.php`.
 - Controllers are split: `app/Http/Controllers/` (web/Blade) vs `app/Http/Controllers/Api/` (JSON API).
 - In `routes/api.php`, `/my-recipes` is registered **before** `/recipes/{id}` on purpose; recipe search is `POST /recipes/search` because it needs a request body. Keep this ordering when adding routes.
 - API auth is Sanctum tokens (`HasApiTokens` on User, `auth:sanctum` middleware).

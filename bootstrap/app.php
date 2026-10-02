@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Needed when behind a proxy/load balancer (e.g. Render)
         // so Laravel respects X-Forwarded-* headers (especially proto=https).
         $middleware->trustProxies(at: '*');
+
+        $middleware->alias([
+            'sync.token' => \App\Http\Middleware\EnsureSyncToken::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
