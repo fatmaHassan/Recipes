@@ -8,7 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class RecipeService
 {
-    private string $baseUrl = 'https://www.themealdb.com/api/json/v1/1/';
+    private string $baseUrl;
+    private string $apiKey;
+
+    public function __construct()
+    {
+        $this->baseUrl = rtrim(config('services.themealdb.base_url'), '/') . '/';
+        $this->apiKey = config('services.themealdb.api_key', '1');
+    }
 
     /**
      * Search recipes by ingredient
@@ -20,7 +27,8 @@ class RecipeService
         return Cache::remember($cacheKey, 3600, function () use ($ingredient) {
             try {
                 $response = Http::get($this->baseUrl . 'filter.php', [
-                    'i' => $ingredient
+                    'i' => $ingredient,
+                    'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
@@ -62,7 +70,8 @@ class RecipeService
         return Cache::remember($cacheKey, 86400, function () { // Cache for 24 hours
             try {
                 $response = Http::get($this->baseUrl . 'list.php', [
-                    'i' => 'list'
+                    'i' => 'list',
+                    'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
@@ -206,7 +215,8 @@ class RecipeService
         $result = Cache::remember($cacheKey, 3600, function () use ($recipeId) {
             try {
                 $response = Http::get($this->baseUrl . 'lookup.php', [
-                    'i' => $recipeId
+                    'i' => $recipeId,
+                    'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
@@ -297,7 +307,9 @@ class RecipeService
                 }
                 
                 try {
-                    $response = Http::get($this->baseUrl . 'random.php');
+                    $response = Http::get($this->baseUrl . 'random.php', [
+                        'apikey' => $this->apiKey,
+                    ]);
                     
                     if ($response->successful()) {
                         $data = $response->json();
@@ -357,7 +369,8 @@ class RecipeService
         return Cache::remember($cacheKey, 86400, function () {
             try {
                 $response = Http::get($this->baseUrl . 'list.php', [
-                    'a' => 'list'
+                    'a' => 'list',
+                    'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
@@ -396,7 +409,8 @@ class RecipeService
         return Cache::remember($cacheKey, 3600, function () use ($cuisine) {
             try {
                 $response = Http::get($this->baseUrl . 'filter.php', [
-                    'a' => $cuisine
+                    'a' => $cuisine,
+                    'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
