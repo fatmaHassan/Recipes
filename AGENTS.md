@@ -35,7 +35,7 @@ No lint script; `laravel/pint` is installed (`vendor/bin/pint`) but not enforced
 ## Architecture / conventions
 
 - External recipes: `app/Services/RecipeService.php` hits TheMealDB, cached 1h; returns `[]` on failure or "no results" (API returns `null` meals). Base URL in `config/services.php` (`THEMEALDB_BASE_URL`).
-- Local recipe DB: `php artisan app:mealdb:sync` upserts TheMealDB into `recipes` + `recipe_ingredients` (hash-skipped, re-runnable). Daily 03:00 UTC schedule; runs locally via `composer dev` (schedule:work), on prod via cron-job.org hitting `POST /api/sync/mealdb` with `X-Sync-Token: MEALDB_SYNC_TOKEN` (empty token = endpoint 403s).
+- Local recipe DB: `php artisan app:mealdb:sync` upserts TheMealDB into `recipes` + `recipe_ingredients` (hash-skipped, re-runnable). Daily 03:00 UTC schedule; runs locally via `composer dev` (schedule:work), on prod via cron-job.org hitting `POST /api/sync/mealdb` with `X-Sync-Token: MEALDB_SYNC_TOKEN` (empty token = endpoint 403s). Endpoint returns **202 instantly** and syncs after the response (30s webhook timeouts are harmless); append `?wait=1` for blocking stats; concurrent triggers get 409 (cache lock).
 - Recipe read source: `RECIPE_SOURCE=api` (live TheMealDB) or `db` (local tables) — see `config/recipes.php`.
 - Controllers are split: `app/Http/Controllers/` (web/Blade) vs `app/Http/Controllers/Api/` (JSON API).
 - In `routes/api.php`, `/my-recipes` is registered **before** `/recipes/{id}` on purpose; recipe search is `POST /recipes/search` because it needs a request body. Keep this ordering when adding routes.

@@ -7,6 +7,7 @@ use App\Models\RecipeIngredient;
 use App\Services\MealDbSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -224,13 +225,28 @@ class MealDbSyncTest extends TestCase
         $this->withHeader('X-Sync-Token', 'wrong')->postJson('/api/sync/mealdb')->assertStatus(403);
     }
 
-    public function test_sync_endpoint_syncs_with_valid_token(): void
+    public function test_sync_endpoint_starts_async_with_valid_token(): void
     {
         $this->fakeThemealdb();
         config(['services.mealdb_sync.token' => 'secret']);
 
         $this->withHeader('X-Sync-Token', 'secret')
             ->postJson('/api/sync/mealdb')
+            ->assertStatus(202)
+            ->assertJsonFragment(['message' => 'MealDB sync started.']);
+
+        // In tests the kernel terminates synchronously, so the afterResponse
+        // closure has already run and completed the sync.
+        $this->assertSame(2, Recipe::count());
+    }
+
+    public function test_sync_endpoint_wait_returns_stats(): void
+    {
+        $this->fakeThemealdb();
+        config(['services.mealdb_sync.token' => 'secret']);
+
+        $this->withHeader('X-Sync-Token', 'secret')
+            ->postJson('/api/sync/mealdb?wait=1')
             ->assertStatus(200)
             ->assertJsonFragment([
                 'inserted' => 2,
@@ -243,12 +259,23 @@ class MealDbSyncTest extends TestCase
         $this->assertSame(2, Recipe::count());
     }
 
+    public function test_sync_endpoint_returns_409_when_already_running(): void
+    {
+        $this->fakeThemealdb();
+        config(['services.mealdb_sync.token' => 'secret']);
+        Cache::lock('mealdb_sync', 10)->get();
+
+        $this->withHeader('X-Sync-Token', 'secret')
+            ->postJson('/api/sync/mealdb')
+            ->assertStatus(409);
+    }
+
     public function test_sync_endpoint_is_throttled(): void
     {
         $this->fakeThemealdb();
         config(['services.mealdb_sync.token' => 'secret']);
 
-        $request = fn () => $this->withHeader('X-Sync-Token', 'secret')->postJson('/api/sync/mealdb');
+        $request = fn () => $this->withHeader('X-Sync-Token', 'secret')->postJson('/api/sync/mealdb?wait=1');
 
         $request();
         $request();
