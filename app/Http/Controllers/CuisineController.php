@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\RecipeService;
+use App\Contracts\RecipeRepository;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CuisineController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -23,7 +23,7 @@ class CuisineController extends Controller
     public function index()
     {
         $cuisines = $this->recipeService->getCuisinesWithFlags();
-        
+
         return view('cuisines.index', compact('cuisines'));
     }
 
@@ -33,7 +33,7 @@ class CuisineController extends Controller
     public function show(Request $request, string $cuisine)
     {
         $recipes = $this->recipeService->searchByCuisine($cuisine);
-        
+
         // Filter by allergies if user is logged in
         if (Auth::check()) {
             $allergies = Auth::user()->allergies()->get()->toArray();
@@ -44,7 +44,7 @@ class CuisineController extends Controller
         $perPage = 12;
         $currentPage = Paginator::resolveCurrentPage();
         $currentItems = array_slice($recipes, ($currentPage - 1) * $perPage, $perPage);
-        
+
         $paginatedRecipes = new LengthAwarePaginator(
             $currentItems,
             count($recipes),

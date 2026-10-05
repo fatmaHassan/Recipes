@@ -2,18 +2,21 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
+use App\Support\CuisineFlags;
+use App\Support\IngredientMatcher;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RecipeService
 {
     private string $baseUrl;
+
     private string $apiKey;
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('services.themealdb.base_url'), '/') . '/';
+        $this->baseUrl = rtrim(config('services.themealdb.base_url'), '/').'/';
         $this->apiKey = config('services.themealdb.api_key', '1');
     }
 
@@ -23,10 +26,10 @@ class RecipeService
     public function searchByIngredient(string $ingredient): array
     {
         $cacheKey = "recipe_search_{$ingredient}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($ingredient) {
             try {
-                $response = Http::get($this->baseUrl . 'filter.php', [
+                $response = Http::get($this->baseUrl.'filter.php', [
                     'i' => $ingredient,
                     'apikey' => $this->apiKey,
                 ]);
@@ -34,42 +37,42 @@ class RecipeService
                 if ($response->successful()) {
                     $data = $response->json();
                     $meals = $data['meals'] ?? null;
-                    
+
                     // TheMealDB returns null (not empty array) when no results found
                     if ($meals === null) {
                         return [];
                     }
-                    
+
                     return $meals;
                 }
 
                 Log::warning('TheMealDB API request failed', [
                     'ingredient' => $ingredient,
-                    'status' => $response->status()
+                    'status' => $response->status(),
                 ]);
 
                 return [];
             } catch (\Exception $e) {
                 Log::error('Error fetching recipes from TheMealDB', [
                     'ingredient' => $ingredient,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 return [];
             }
         });
     }
-    
+
     /**
      * Get all ingredients from TheMealDB
      */
     public function getAllIngredients(): array
     {
         $cacheKey = 'themealdb_all_ingredients';
-        
+
         return Cache::remember($cacheKey, 86400, function () { // Cache for 24 hours
             try {
-                $response = Http::get($this->baseUrl . 'list.php', [
+                $response = Http::get($this->baseUrl.'list.php', [
                     'i' => 'list',
                     'apikey' => $this->apiKey,
                 ]);
@@ -77,23 +80,23 @@ class RecipeService
                 if ($response->successful()) {
                     $data = $response->json();
                     $meals = $data['meals'] ?? [];
-                    
+
                     // Extract ingredient names
                     $ingredients = array_map(function ($item) {
                         return $item['strIngredient'] ?? '';
                     }, $meals);
-                    
+
                     return array_filter($ingredients); // Remove empty values
                 }
 
                 Log::warning('TheMealDB API request failed for ingredients list', [
-                    'status' => $response->status()
+                    'status' => $response->status(),
                 ]);
 
                 return [];
             } catch (\Exception $e) {
                 Log::error('Error fetching ingredients list from TheMealDB', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 return [];
@@ -106,34 +109,7 @@ class RecipeService
      */
     public function searchIngredients(string $query, int $limit = 10): array
     {
-        $allIngredients = $this->getAllIngredients();
-        $queryLower = strtolower(trim($query));
-        
-        if (empty($queryLower)) {
-            return array_slice($allIngredients, 0, $limit);
-        }
-        
-        $matches = [];
-        $exactMatches = [];
-        $startsWithMatches = [];
-        $containsMatches = [];
-        
-        foreach ($allIngredients as $ingredient) {
-            $ingredientLower = strtolower($ingredient);
-            
-            if ($ingredientLower === $queryLower) {
-                $exactMatches[] = $ingredient;
-            } elseif (strpos($ingredientLower, $queryLower) === 0) {
-                $startsWithMatches[] = $ingredient;
-            } elseif (strpos($ingredientLower, $queryLower) !== false) {
-                $containsMatches[] = $ingredient;
-            }
-        }
-        
-        // Combine matches in order of relevance
-        $matches = array_merge($exactMatches, $startsWithMatches, $containsMatches);
-        
-        return array_slice($matches, 0, $limit);
+        return IngredientMatcher::search($this->getAllIngredients(), $query, $limit);
     }
 
     /**
@@ -141,45 +117,7 @@ class RecipeService
      */
     public function getIngredientSuggestions(string $ingredient): array
     {
-        // First try to get suggestions from TheMealDB ingredients
-        $allIngredients = $this->getAllIngredients();
-        $ingredientLower = strtolower(trim($ingredient));
-        
-        // Find similar ingredients using fuzzy matching
-        $suggestions = [];
-        foreach ($allIngredients as $dbIngredient) {
-            $dbIngredientLower = strtolower($dbIngredient);
-            
-            // Check if it's a close match (contains the search term or vice versa)
-            if ($dbIngredientLower !== $ingredientLower) {
-                if (strpos($dbIngredientLower, $ingredientLower) !== false || 
-                    strpos($ingredientLower, $dbIngredientLower) !== false ||
-                    similar_text($ingredientLower, $dbIngredientLower) / max(strlen($ingredientLower), strlen($dbIngredientLower)) > 0.6) {
-                    $suggestions[] = $dbIngredient;
-                }
-            }
-        }
-        
-        // Limit to top 5 suggestions
-        $suggestions = array_slice($suggestions, 0, 5);
-        
-        // Fallback to hardcoded suggestions if no matches found
-        if (empty($suggestions)) {
-            $hardcodedSuggestions = [
-                'meat' => ['chicken', 'beef', 'pork', 'lamb', 'turkey'],
-                'chicken' => ['chicken breast', 'chicken thigh', 'chicken wing'],
-                'beef' => ['ground beef', 'beef steak', 'beef roast'],
-                'fish' => ['salmon', 'tuna', 'cod', 'tilapia'],
-                'vegetable' => ['carrot', 'onion', 'tomato', 'potato', 'broccoli'],
-                'dairy' => ['milk', 'cheese', 'butter', 'cream'],
-            ];
-            
-            if (isset($hardcodedSuggestions[$ingredientLower])) {
-                return $hardcodedSuggestions[$ingredientLower];
-            }
-        }
-        
-        return $suggestions;
+        return IngredientMatcher::suggestions($this->getAllIngredients(), $ingredient);
     }
 
     /**
@@ -192,10 +130,10 @@ class RecipeService
 
         foreach ($ingredients as $ingredient) {
             $recipes = $this->searchByIngredient($ingredient);
-            
+
             foreach ($recipes as $recipe) {
                 $id = $recipe['idMeal'] ?? null;
-                if ($id && !in_array($id, $recipeIds)) {
+                if ($id && ! in_array($id, $recipeIds)) {
                     $recipeIds[] = $id;
                     $allRecipes[] = $recipe;
                 }
@@ -211,16 +149,17 @@ class RecipeService
     public function getRecipeDetails(string $recipeId): ?array
     {
         $cacheKey = "recipe_details_{$recipeId}";
-        
+
         $result = Cache::remember($cacheKey, 3600, function () use ($recipeId) {
             try {
-                $response = Http::get($this->baseUrl . 'lookup.php', [
+                $response = Http::get($this->baseUrl.'lookup.php', [
                     'i' => $recipeId,
                     'apikey' => $this->apiKey,
                 ]);
 
                 if ($response->successful()) {
                     $data = $response->json();
+
                     return $data['meals'][0] ?? null;
                 }
 
@@ -228,7 +167,7 @@ class RecipeService
             } catch (\Exception $e) {
                 Log::error('Error fetching recipe details from TheMealDB', [
                     'recipe_id' => $recipeId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 return null;
@@ -236,9 +175,10 @@ class RecipeService
         });
 
         // Ensure we always return ?array, not a string or other type
-        if (!is_array($result) && $result !== null) {
+        if (! is_array($result) && $result !== null) {
             // If cached value is not the expected type, clear cache and return null
             Cache::forget($cacheKey);
+
             return null;
         }
 
@@ -255,11 +195,11 @@ class RecipeService
         }
 
         $filtered = [];
-        
+
         foreach ($recipes as $recipe) {
             $recipeDetails = $this->getRecipeDetails($recipe['idMeal'] ?? '');
-            
-            if (!$recipeDetails) {
+
+            if (! $recipeDetails) {
                 continue;
             }
 
@@ -268,7 +208,7 @@ class RecipeService
 
             foreach ($allergies as $allergy) {
                 $allergenName = strtolower($allergy['allergen_name'] ?? '');
-                
+
                 foreach ($recipeIngredients as $ingredient) {
                     if (stripos(strtolower($ingredient), $allergenName) !== false) {
                         $hasAllergen = true;
@@ -277,7 +217,7 @@ class RecipeService
                 }
             }
 
-            if (!$hasAllergen) {
+            if (! $hasAllergen) {
                 $filtered[] = $recipe;
             }
         }
@@ -287,39 +227,39 @@ class RecipeService
 
     /**
      * Get random meals from TheMealDB
-     * 
-     * @param int $count Number of random meals to fetch (default: 6)
+     *
+     * @param  int  $count  Number of random meals to fetch (default: 6)
      * @return array Array of random meal recipes
      */
     public function getRandomMeals(int $count = 6): array
     {
         $cacheKey = "random_meals_{$count}";
-        
+
         // Cache for shorter time (15 minutes) to ensure freshness
         return Cache::remember($cacheKey, 900, function () use ($count) {
             $meals = [];
             $mealIds = [];
-            
+
             // Fetch random meals one by one to avoid duplicates
             for ($i = 0; $i < $count * 2; $i++) { // Try more times to account for duplicates
                 if (count($meals) >= $count) {
                     break;
                 }
-                
+
                 try {
-                    $response = Http::get($this->baseUrl . 'random.php', [
+                    $response = Http::get($this->baseUrl.'random.php', [
                         'apikey' => $this->apiKey,
                     ]);
-                    
+
                     if ($response->successful()) {
                         $data = $response->json();
                         $meal = $data['meals'][0] ?? null;
-                        
+
                         if ($meal && isset($meal['idMeal'])) {
                             $mealId = $meal['idMeal'];
-                            
+
                             // Avoid duplicates
-                            if (!in_array($mealId, $mealIds)) {
+                            if (! in_array($mealId, $mealIds)) {
                                 $mealIds[] = $mealId;
                                 $meals[] = $meal;
                             }
@@ -328,16 +268,16 @@ class RecipeService
                 } catch (\Exception $e) {
                     Log::error('Error fetching random meal from TheMealDB', [
                         'attempt' => $i + 1,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
-                
+
                 // Small delay to avoid rate limiting
                 if ($i < $count * 2 - 1) {
                     usleep(100000); // 0.1 second delay
                 }
             }
-            
+
             return $meals;
         });
     }
@@ -348,7 +288,7 @@ class RecipeService
     private function extractIngredients(array $recipeDetails): array
     {
         $ingredients = [];
-        
+
         for ($i = 1; $i <= 20; $i++) {
             $ingredient = $recipeDetails["strIngredient{$i}"] ?? null;
             if ($ingredient && trim($ingredient) !== '') {
@@ -365,10 +305,10 @@ class RecipeService
     public function getAllCuisines(): array
     {
         $cacheKey = 'themealdb_all_cuisines';
-        
+
         return Cache::remember($cacheKey, 86400, function () {
             try {
-                $response = Http::get($this->baseUrl . 'list.php', [
+                $response = Http::get($this->baseUrl.'list.php', [
                     'a' => 'list',
                     'apikey' => $this->apiKey,
                 ]);
@@ -376,22 +316,22 @@ class RecipeService
                 if ($response->successful()) {
                     $data = $response->json();
                     $meals = $data['meals'] ?? [];
-                    
+
                     $cuisines = array_map(function ($item) {
                         return $item['strArea'] ?? '';
                     }, $meals);
-                    
+
                     return array_filter($cuisines);
                 }
 
                 Log::warning('TheMealDB API request failed for cuisines list', [
-                    'status' => $response->status()
+                    'status' => $response->status(),
                 ]);
 
                 return [];
             } catch (\Exception $e) {
                 Log::error('Error fetching cuisines list from TheMealDB', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 return [];
@@ -405,10 +345,10 @@ class RecipeService
     public function searchByCuisine(string $cuisine): array
     {
         $cacheKey = "recipe_cuisine_{$cuisine}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($cuisine) {
             try {
-                $response = Http::get($this->baseUrl . 'filter.php', [
+                $response = Http::get($this->baseUrl.'filter.php', [
                     'a' => $cuisine,
                     'apikey' => $this->apiKey,
                 ]);
@@ -416,24 +356,24 @@ class RecipeService
                 if ($response->successful()) {
                     $data = $response->json();
                     $meals = $data['meals'] ?? null;
-                    
+
                     if ($meals === null) {
                         return [];
                     }
-                    
+
                     return $meals;
                 }
 
                 Log::warning('TheMealDB API request failed', [
                     'cuisine' => $cuisine,
-                    'status' => $response->status()
+                    'status' => $response->status(),
                 ]);
 
                 return [];
             } catch (\Exception $e) {
                 Log::error('Error fetching recipes by cuisine from TheMealDB', [
                     'cuisine' => $cuisine,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
 
                 return [];
@@ -446,48 +386,6 @@ class RecipeService
      */
     public function getCuisinesWithFlags(): array
     {
-        $cuisines = $this->getAllCuisines();
-        
-        $flagMap = [
-            'American' => 'us',
-            'British' => 'gb',
-            'Canadian' => 'ca',
-            'Chinese' => 'cn',
-            'Croatian' => 'hr',
-            'Dutch' => 'nl',
-            'Egyptian' => 'eg',
-            'Filipino' => 'ph',
-            'French' => 'fr',
-            'Greek' => 'gr',
-            'Indian' => 'in',
-            'Irish' => 'ie',
-            'Italian' => 'it',
-            'Jamaican' => 'jm',
-            'Japanese' => 'jp',
-            'Kenyan' => 'ke',
-            'Malaysian' => 'my',
-            'Mexican' => 'mx',
-            'Moroccan' => 'ma',
-            'Polish' => 'pl',
-            'Portuguese' => 'pt',
-            'Russian' => 'ru',
-            'Spanish' => 'es',
-            'Thai' => 'th',
-            'Tunisian' => 'tn',
-            'Turkish' => 'tr',
-            'Ukrainian' => 'ua',
-            'Vietnamese' => 'vn',
-            'Unknown' => null,
-        ];
-
-        $result = [];
-        foreach ($cuisines as $cuisine) {
-            $result[] = [
-                'name' => $cuisine,
-                'code' => $flagMap[$cuisine] ?? null,
-            ];
-        }
-
-        return $result;
+        return CuisineFlags::forNames($this->getAllCuisines());
     }
 }
