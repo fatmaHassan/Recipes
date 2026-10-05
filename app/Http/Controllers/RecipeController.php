@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\RecipeRepository;
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -115,7 +116,7 @@ class RecipeController extends Controller
     {
         $request->validate([
             'recipe_id' => 'required|string',
-            'recipe_data' => 'required|array',
+            'recipe_data' => 'nullable|array',
         ]);
 
         $user = Auth::user();
@@ -130,12 +131,23 @@ class RecipeController extends Controller
                 ->with('info', 'Recipe is already saved.');
         }
 
+        $recipeData = $request->recipe_data
+            ?? $this->recipeService->getRecipeDetails($request->recipe_id);
+
+        if (! $recipeData) {
+            return redirect()->back()
+                ->with('error', 'Recipe not found. Please try again.');
+        }
+
         try {
             $isFavorite = $request->has('favorite') && $request->favorite == '1';
 
             $user->savedRecipes()->create([
                 'recipe_id' => $request->recipe_id,
-                'recipe_data' => $request->recipe_data,
+                'recipe_internal_id' => Recipe::query()
+                    ->where('external_id', $request->recipe_id)
+                    ->value('id'),
+                'recipe_data' => $recipeData,
                 'is_favorite' => $isFavorite,
             ]);
 
