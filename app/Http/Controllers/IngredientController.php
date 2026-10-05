@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\RecipeRepository;
 use App\Models\Ingredient;
-use App\Services\RecipeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class IngredientController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -22,6 +22,7 @@ class IngredientController extends Controller
     public function index()
     {
         $ingredients = Auth::user()->ingredients()->orderBy('name')->get();
+
         return view('ingredients.index', compact('ingredients'));
     }
 
@@ -32,11 +33,11 @@ class IngredientController extends Controller
     {
         $query = $request->input('q', '');
         $limit = min((int) $request->input('limit', 10), 20); // Max 20 results
-        
+
         $suggestions = $this->recipeService->searchIngredients($query, $limit);
-        
+
         return response()->json([
-            'suggestions' => $suggestions
+            'suggestions' => $suggestions,
         ]);
     }
 
@@ -46,17 +47,17 @@ class IngredientController extends Controller
     public function check(Request $request)
     {
         $ingredient = $request->input('ingredient', '');
-        
+
         if (empty($ingredient)) {
             return response()->json([
                 'exists' => false,
-                'suggestions' => []
+                'suggestions' => [],
             ]);
         }
-        
+
         $allIngredients = $this->recipeService->getAllIngredients();
         $ingredientLower = strtolower(trim($ingredient));
-        
+
         // Check if exact match exists
         $exists = false;
         foreach ($allIngredients as $dbIngredient) {
@@ -65,16 +66,16 @@ class IngredientController extends Controller
                 break;
             }
         }
-        
+
         // Get suggestions if not found
         $suggestions = [];
-        if (!$exists) {
+        if (! $exists) {
             $suggestions = $this->recipeService->getIngredientSuggestions($ingredient);
         }
-        
+
         return response()->json([
             'exists' => $exists,
-            'suggestions' => $suggestions
+            'suggestions' => $suggestions,
         ]);
     }
 

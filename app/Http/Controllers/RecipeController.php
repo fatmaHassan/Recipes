@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SavedRecipe;
-use App\Services\RecipeService;
+use App\Contracts\RecipeRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 
 class RecipeController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -31,7 +30,7 @@ class RecipeController extends Controller
             ]);
 
             return redirect()->route('recipes.search', [
-                'ingredients' => $request->ingredients
+                'ingredients' => $request->ingredients,
             ]);
         }
 
@@ -43,14 +42,14 @@ class RecipeController extends Controller
 
         $ingredients = $request->ingredients;
         $recipes = $this->recipeService->searchByIngredients($ingredients);
-        
+
         // Collect suggestions for ingredients that returned no results
         $suggestions = [];
         foreach ($ingredients as $ingredient) {
             $ingredientResults = $this->recipeService->searchByIngredient($ingredient);
             if (empty($ingredientResults)) {
                 $altSuggestions = $this->recipeService->getIngredientSuggestions($ingredient);
-                if (!empty($altSuggestions)) {
+                if (! empty($altSuggestions)) {
                     $suggestions[$ingredient] = $altSuggestions;
                 }
             }
@@ -66,7 +65,7 @@ class RecipeController extends Controller
         $perPage = 12; // Number of recipes per page
         $currentPage = Paginator::resolveCurrentPage();
         $currentItems = array_slice($recipes, ($currentPage - 1) * $perPage, $perPage);
-        
+
         $paginatedRecipes = new LengthAwarePaginator(
             $currentItems,
             count($recipes),
@@ -87,8 +86,8 @@ class RecipeController extends Controller
     public function show(string $id)
     {
         $recipe = $this->recipeService->getRecipeDetails($id);
-        
-        if (!$recipe) {
+
+        if (! $recipe) {
             abort(404, 'Recipe not found');
         }
 
@@ -99,7 +98,7 @@ class RecipeController extends Controller
             $savedRecipe = Auth::user()->savedRecipes()
                 ->where('recipe_id', $id)
                 ->first();
-            
+
             if ($savedRecipe) {
                 $isSaved = true;
                 $isFavorite = $savedRecipe->is_favorite;
@@ -120,7 +119,7 @@ class RecipeController extends Controller
         ]);
 
         $user = Auth::user();
-        
+
         // Check if already saved
         $existing = $user->savedRecipes()
             ->where('recipe_id', $request->recipe_id)
@@ -133,21 +132,22 @@ class RecipeController extends Controller
 
         try {
             $isFavorite = $request->has('favorite') && $request->favorite == '1';
-            
+
             $user->savedRecipes()->create([
                 'recipe_id' => $request->recipe_id,
                 'recipe_data' => $request->recipe_data,
                 'is_favorite' => $isFavorite,
             ]);
 
-            $message = $isFavorite 
+            $message = $isFavorite
                 ? 'Recipe saved and added to favorites!'
                 : 'Recipe saved successfully! You can find it in "My Recipes".';
 
             return redirect()->back()
                 ->with('success', $message);
         } catch (\Exception $e) {
-            \Log::error('Error saving recipe: ' . $e->getMessage());
+            \Log::error('Error saving recipe: '.$e->getMessage());
+
             return redirect()->back()
                 ->with('error', 'Failed to save recipe. Please try again.');
         }
@@ -162,17 +162,17 @@ class RecipeController extends Controller
             ->where('recipe_id', $recipeId)
             ->first();
 
-        if (!$savedRecipe) {
+        if (! $savedRecipe) {
             return redirect()->back()
                 ->with('error', 'Recipe not found in saved recipes.');
         }
 
         $savedRecipe->update([
-            'is_favorite' => !$savedRecipe->is_favorite,
+            'is_favorite' => ! $savedRecipe->is_favorite,
         ]);
 
-        $message = $savedRecipe->is_favorite 
-            ? 'Recipe added to favorites.' 
+        $message = $savedRecipe->is_favorite
+            ? 'Recipe added to favorites.'
             : 'Recipe removed from favorites.';
 
         return redirect()->back()

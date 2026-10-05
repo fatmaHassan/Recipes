@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\RecipeRepository;
 use App\Http\Controllers\Controller;
 use App\Models\Ingredient;
-use App\Services\RecipeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class IngredientController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -108,7 +108,7 @@ class IngredientController extends Controller
         }
 
         $suggestions = [];
-        if (!$exists) {
+        if (! $exists) {
             $suggestions = $this->recipeService->getIngredientSuggestions($ingredient);
         }
 

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\RecipeRepository;
 use App\Http\Controllers\Controller;
-use App\Services\RecipeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CuisineController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -23,7 +23,7 @@ class CuisineController extends Controller
     public function index(): JsonResponse
     {
         $cuisines = $this->recipeService->getCuisinesWithFlags();
-        
+
         return response()->json([
             'cuisines' => $cuisines,
             'count' => count($cuisines),
@@ -36,7 +36,7 @@ class CuisineController extends Controller
     public function show(Request $request, string $cuisine): JsonResponse
     {
         $recipes = $this->recipeService->searchByCuisine($cuisine);
-        
+
         if (empty($recipes)) {
             return response()->json([
                 'message' => 'No recipes found for this cuisine',

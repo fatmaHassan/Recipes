@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\RecipeService;
-use Illuminate\Http\Request;
+use App\Contracts\RecipeRepository;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -19,7 +18,7 @@ class HomeController extends Controller
     {
         // Get random meals for both logged in users and guests
         $randomMeals = $this->recipeService->getRandomMeals(6);
-        
+
         // Get featured cuisines with flags (limit to 8 popular ones for the home page)
         $allCuisines = $this->recipeService->getCuisinesWithFlags();
         $featuredCuisineNames = ['Italian', 'Mexican', 'Chinese', 'Indian', 'Japanese', 'French', 'Thai', 'American'];
@@ -27,13 +26,13 @@ class HomeController extends Controller
             return in_array($cuisine['name'], $featuredCuisineNames);
         });
         $featuredCuisines = array_values($featuredCuisines);
-        
+
         // Filter by allergies if user is logged in
         if (Auth::check()) {
             $user = Auth::user();
             $allergies = $user->allergies()->get()->toArray();
             $randomMeals = $this->recipeService->filterByAllergies($randomMeals, $allergies);
-            
+
             $ingredientsCount = $user->ingredients()->count();
             $savedRecipesCount = $user->savedRecipes()->count();
             $favoritesCount = $user->savedRecipes()->where('is_favorite', true)->count();

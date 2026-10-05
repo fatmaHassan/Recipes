@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\RecipeRepository;
 use App\Http\Controllers\Controller;
-use App\Models\SavedRecipe;
-use App\Services\RecipeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RecipeController extends Controller
 {
-    protected RecipeService $recipeService;
+    protected RecipeRepository $recipeService;
 
-    public function __construct(RecipeService $recipeService)
+    public function __construct(RecipeRepository $recipeService)
     {
         $this->recipeService = $recipeService;
     }
@@ -37,7 +36,7 @@ class RecipeController extends Controller
             $ingredientResults = $this->recipeService->searchByIngredient($ingredient);
             if (empty($ingredientResults)) {
                 $altSuggestions = $this->recipeService->getIngredientSuggestions($ingredient);
-                if (!empty($altSuggestions)) {
+                if (! empty($altSuggestions)) {
                     $suggestions[$ingredient] = $altSuggestions;
                 }
             }
@@ -63,7 +62,7 @@ class RecipeController extends Controller
     {
         $recipe = $this->recipeService->getRecipeDetails($id);
 
-        if (!$recipe) {
+        if (! $recipe) {
             return response()->json([
                 'message' => 'Recipe not found',
             ], 404);
@@ -132,7 +131,8 @@ class RecipeController extends Controller
                 'recipe' => $savedRecipe,
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Error saving recipe: ' . $e->getMessage());
+            \Log::error('Error saving recipe: '.$e->getMessage());
+
             return response()->json([
                 'message' => 'Failed to save recipe. Please try again.',
                 'error' => $e->getMessage(),
@@ -149,14 +149,14 @@ class RecipeController extends Controller
             ->where('recipe_id', $recipeId)
             ->first();
 
-        if (!$savedRecipe) {
+        if (! $savedRecipe) {
             return response()->json([
                 'message' => 'Recipe not found in saved recipes',
             ], 404);
         }
 
         $savedRecipe->update([
-            'is_favorite' => !$savedRecipe->is_favorite,
+            'is_favorite' => ! $savedRecipe->is_favorite,
         ]);
 
         $message = $savedRecipe->is_favorite
@@ -177,21 +177,22 @@ class RecipeController extends Controller
         try {
             $count = (int) ($request->query('count', 6));
             $count = max(1, min($count, 20)); // Limit between 1 and 20
-            
+
             $recipes = $this->recipeService->getRandomMeals($count);
-            
+
             // Filter by allergies if user is logged in
             if (Auth::check()) {
                 $allergies = Auth::user()->allergies()->get()->toArray();
                 $recipes = $this->recipeService->filterByAllergies($recipes, $allergies);
             }
-            
+
             return response()->json([
                 'recipes' => $recipes,
                 'count' => count($recipes),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error fetching random meals: ' . $e->getMessage());
+            \Log::error('Error fetching random meals: '.$e->getMessage());
+
             return response()->json([
                 'message' => 'Failed to fetch random meals',
                 'error' => $e->getMessage(),
