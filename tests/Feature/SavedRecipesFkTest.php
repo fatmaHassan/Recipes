@@ -15,14 +15,13 @@ class SavedRecipesFkTest extends TestCase
 
     private function seedRecipe(string $id, string $title): Recipe
     {
-        return Recipe::create([
+        return Recipe::factory()->create([
             'external_id' => $id,
             'title' => $title,
             'area' => 'Japanese',
             'category' => 'Chicken',
             'instructions' => "Instructions for {$title}",
             'thumb_url' => "https://www.themealdb.com/images/media/meals/{$id}.jpg",
-            'is_active' => true,
         ]);
     }
 

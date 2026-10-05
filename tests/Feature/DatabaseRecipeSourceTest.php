@@ -20,26 +20,22 @@ class DatabaseRecipeSourceTest extends TestCase
 
     private function seedRecipe(string $id, string $title, string $area, array $ingredients = []): Recipe
     {
-        $recipe = Recipe::create([
+        $recipe = Recipe::factory()->create([
             'external_id' => $id,
             'title' => $title,
             'area' => $area,
             'category' => 'Chicken',
             'instructions' => "Instructions for {$title}",
             'thumb_url' => "https://www.themealdb.com/images/media/meals/{$id}.jpg",
-            'tags' => 'Test,tag',
-            'youtube_url' => 'https://www.youtube.com/watch?v=test',
-            'source_url' => null,
-            'is_active' => true,
         ]);
 
-        foreach ($ingredients as $index => [$name, $measure]) {
-            $recipe->ingredients()->create([
+        $recipe->ingredients()->createMany(collect($ingredients)
+            ->map(fn ($ingredient, $index) => [
                 'sort_order' => $index + 1,
-                'name' => $name,
-                'measure' => $measure,
-            ]);
-        }
+                'name' => $ingredient[0],
+                'measure' => $ingredient[1],
+            ])
+            ->all());
 
         return $recipe;
     }
