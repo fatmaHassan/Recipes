@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SavedRecipe extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'recipe_id',
+        'recipe_internal_id',
         'recipe_data',
         'is_favorite',
     ];
@@ -27,5 +29,10 @@ class SavedRecipe extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function recipe(): BelongsTo
+    {
+        return $this->belongsTo(Recipe::class, 'recipe_internal_id');
     }
 }

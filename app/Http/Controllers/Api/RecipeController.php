@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Contracts\RecipeRepository;
 use App\Http\Controllers\Controller;
+use App\Models\Recipe;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -96,7 +97,7 @@ class RecipeController extends Controller
     {
         $request->validate([
             'recipe_id' => 'required|string',
-            'recipe_data' => 'required|array',
+            'recipe_data' => 'nullable|array',
         ]);
 
         $user = Auth::user();
@@ -113,12 +114,24 @@ class RecipeController extends Controller
             ], 409);
         }
 
+        $recipeData = $request->recipe_data
+            ?? $this->recipeService->getRecipeDetails($request->recipe_id);
+
+        if (! $recipeData) {
+            return response()->json([
+                'message' => 'Recipe not found',
+            ], 404);
+        }
+
         try {
             $isFavorite = $request->has('favorite') && $request->favorite == '1';
 
             $savedRecipe = $user->savedRecipes()->create([
                 'recipe_id' => $request->recipe_id,
-                'recipe_data' => $request->recipe_data,
+                'recipe_internal_id' => Recipe::query()
+                    ->where('external_id', $request->recipe_id)
+                    ->value('id'),
+                'recipe_data' => $recipeData,
                 'is_favorite' => $isFavorite,
             ]);
 
