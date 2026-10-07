@@ -28,5 +28,8 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Deterministic recipe set for E2E and API tests
+        $this->call(RecipeSeeder::class);
     }
 }
