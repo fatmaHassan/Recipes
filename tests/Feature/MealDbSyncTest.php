@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
+use App\Models\SavedRecipe;
+use App\Models\User;
 use App\Services\MealDbSyncService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -113,6 +115,7 @@ class MealDbSyncTest extends TestCase
             'skipped' => 0,
             'deactivated' => 0,
             'failed' => 0,
+            'relinked' => 0,
         ], $stats);
 
         $recipe = Recipe::where('external_id', '52772')->first();
@@ -202,8 +205,29 @@ class MealDbSyncTest extends TestCase
         $this->fakeThemealdb();
 
         $this->artisan('app:mealdb:sync')
-            ->expectsOutputToContain('Synced: 2 inserted, 0 updated, 0 skipped, 0 deactivated, 0 failed.')
+            ->expectsOutputToContain('Synced: 2 inserted, 0 updated, 0 skipped, 0 deactivated, 0 failed, 0 relinked.')
             ->assertExitCode(0);
+    }
+
+    public function test_sync_relinks_orphan_saved_recipes(): void
+    {
+        $this->fakeThemealdb();
+        $user = User::factory()->create();
+        $saved = SavedRecipe::create([
+            'user_id' => $user->id,
+            'recipe_id' => '52772',
+            'recipe_data' => ['idMeal' => '52772'],
+            'is_favorite' => false,
+        ]);
+        $this->assertNull($saved->recipe_internal_id);
+
+        $stats = app(MealDbSyncService::class)->sync();
+
+        $this->assertSame(1, $stats['relinked']);
+        $this->assertSame(
+            Recipe::where('external_id', '52772')->value('id'),
+            $saved->refresh()->recipe_internal_id
+        );
     }
 
     public function test_sync_command_fails_when_api_unavailable(): void

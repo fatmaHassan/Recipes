@@ -16,8 +16,8 @@ class MyRecipesController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return response()->json([
                     'message' => 'Unauthenticated',
                 ], 401);
@@ -26,21 +26,21 @@ class MyRecipesController extends Controller
             // Get pagination parameters (default: 15 per page)
             $perPage = (int) $request->query('per_page', 15);
             $perPage = max(1, min($perPage, 50)); // Limit between 1 and 50
-            
+
             // Paginate the saved recipes
             $paginatedRecipes = $user->savedRecipes()
+                ->with('recipe')
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 
             // Transform the saved recipes to include recipe_data
             $recipes = $paginatedRecipes->getCollection()->map(function ($savedRecipe) {
-                $recipeData = $savedRecipe->recipe_data ?? [];
                 return array_merge([
                     'id' => $savedRecipe->recipe_id,
                     'saved_id' => $savedRecipe->id,
                     'is_favorite' => $savedRecipe->is_favorite,
                     'saved_at' => $savedRecipe->created_at,
-                ], $recipeData);
+                ], $savedRecipe->toMealDbArray());
             })->values()->toArray();
 
             return response()->json([
@@ -54,7 +54,8 @@ class MyRecipesController extends Controller
                 'has_more_pages' => $paginatedRecipes->hasMorePages(),
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error fetching my recipes: ' . $e->getMessage());
+            \Log::error('Error fetching my recipes: '.$e->getMessage());
+
             return response()->json([
                 'message' => 'Failed to fetch recipes',
                 'error' => $e->getMessage(),
