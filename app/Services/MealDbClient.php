@@ -58,6 +58,27 @@ class MealDbClient
     }
 
     /**
+     * Get full meal records whose names begin with the given character.
+     * Premium keys return uncapped results here; unlike the other methods
+     * this throws on failure so callers never mistake an outage for
+     * "no meals" and wrongly deactivate data.
+     */
+    public function mealsByLetter(string $letter): array
+    {
+        $response = Http::retry(3, 500)->timeout(30)
+            ->get($this->baseUrl.'search.php', [
+                'f' => $letter,
+                'apikey' => $this->apiKey,
+            ]);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException("TheMealDB search.php?f={$letter} failed with status {$response->status()}.");
+        }
+
+        return $response->json('meals') ?? [];
+    }
+
+    /**
      * Fetch full details for a single meal.
      */
     public function lookup(string $idMeal): ?array
@@ -81,6 +102,26 @@ class MealDbClient
 
             return null;
         }
+    }
+
+    /**
+     * Like lookup(), but only returns null for a definitive "meal does not
+     * exist" response. Transport/HTTP failures throw, so callers can never
+     * confuse an outage with a deleted meal.
+     */
+    public function lookupStrict(string $idMeal): ?array
+    {
+        $response = Http::retry(3, 500)->timeout(30)
+            ->get($this->baseUrl.'lookup.php', [
+                'i' => $idMeal,
+                'apikey' => $this->apiKey,
+            ]);
+
+        if (! $response->successful()) {
+            throw new \RuntimeException("TheMealDB lookup.php?i={$idMeal} failed with status {$response->status()}.");
+        }
+
+        return $response->json('meals.0');
     }
 
     /**

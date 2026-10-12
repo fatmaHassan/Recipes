@@ -75,6 +75,17 @@ class MealDbSyncTest extends TestCase
                 }
             }
 
+            if (str_contains($url, '/search.php')) {
+                $letter = strtolower($request['f'] ?? '');
+
+                $meals = collect($this->meals)
+                    ->filter(fn ($meal) => strtolower(substr($meal['strMeal'], 0, 1)) === $letter)
+                    ->values()
+                    ->all();
+
+                return Http::response(['meals' => $meals ?: null]);
+            }
+
             if (str_contains($url, '/filter.php')) {
                 $area = $request['a'] ?? null;
                 $category = $request['c'] ?? null;
@@ -209,6 +220,43 @@ class MealDbSyncTest extends TestCase
             ->assertExitCode(0);
     }
 
+    public function test_unreachable_but_live_meals_are_kept_active(): void
+    {
+        $this->fakeThemealdb();
+        $this->meals['59999'] = [
+            'idMeal' => '59999',
+            'strMeal' => 'Æbleskiver Test',
+            'strCategory' => 'Dessert',
+            'strArea' => 'Danish',
+            'strInstructions' => 'Test instructions',
+            'strIngredient1' => 'batter',
+            'strMeasure1' => '2 cups',
+        ];
+
+        Recipe::factory()->create([
+            'external_id' => '59999',
+            'title' => 'Æbleskiver Test',
+            'category' => 'Dessert',
+            'area' => 'Danish',
+            'instructions' => 'Test instructions',
+            'thumb_url' => null,
+            'tags' => null,
+            'youtube_url' => null,
+            'source_url' => null,
+        ])->ingredients()->create([
+            'sort_order' => 1,
+            'name' => 'batter',
+            'measure' => '2 cups',
+        ]);
+
+        $stats = app(MealDbSyncService::class)->sync();
+
+        $this->assertSame(2, $stats['inserted']);
+        $this->assertSame(1, $stats['updated']);
+        $this->assertSame(0, $stats['deactivated']);
+        $this->assertTrue((bool) Recipe::where('external_id', '59999')->value('is_active'));
+    }
+
     public function test_sync_relinks_orphan_saved_recipes(): void
     {
         $this->fakeThemealdb();
@@ -232,7 +280,7 @@ class MealDbSyncTest extends TestCase
 
     public function test_sync_command_fails_when_api_unavailable(): void
     {
-        Http::fake(['*/list.php*' => Http::response([], 500)]);
+        Http::fake(['*/search.php*' => Http::response([], 500)]);
 
         $this->artisan('app:mealdb:sync')
             ->expectsOutputToContain('Sync failed:')
