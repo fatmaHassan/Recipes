@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Recipe;
+use App\Support\Backfills\BackfillSavedRecipeFk;
 use Illuminate\Support\Facades\DB;
 
 class MealDbSyncService
@@ -13,11 +14,11 @@ class MealDbSyncService
      * Sync TheMealDB recipes into the local database.
      *
      * @param  string|null  $area  Limit enumeration to one area (partial sync).
-     * @return array{inserted: int, updated: int, skipped: int, deactivated: int, failed: int}
+     * @return array{inserted: int, updated: int, skipped: int, deactivated: int, failed: int, relinked: int}
      */
     public function sync(?string $area = null): array
     {
-        $stats = ['inserted' => 0, 'updated' => 0, 'skipped' => 0, 'deactivated' => 0, 'failed' => 0];
+        $stats = ['inserted' => 0, 'updated' => 0, 'skipped' => 0, 'deactivated' => 0, 'failed' => 0, 'relinked' => 0];
 
         $idMeals = $this->enumerateMealIds($area);
         if (empty($idMeals)) {
@@ -64,6 +65,8 @@ class MealDbSyncService
         if ($area === null) {
             $stats['deactivated'] = $this->deactivateMissing($idMeals);
         }
+
+        $stats['relinked'] = BackfillSavedRecipeFk::run();
 
         return $stats;
     }

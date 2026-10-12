@@ -28,7 +28,8 @@ class MealDbSyncCommand extends Command
         }
 
         $this->info("Synced: {$stats['inserted']} inserted, {$stats['updated']} updated, "
-            ."{$stats['skipped']} skipped, {$stats['deactivated']} deactivated, {$stats['failed']} failed.");
+            ."{$stats['skipped']} skipped, {$stats['deactivated']} deactivated, "
+            ."{$stats['failed']} failed, {$stats['relinked']} relinked.");
 
         return self::SUCCESS;
     }

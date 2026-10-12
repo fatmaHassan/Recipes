@@ -55,6 +55,8 @@ jobs:
     env:
       DB_CONNECTION: sqlite
       DB_DATABASE: database/database.sqlite
+      # Serve recipes from the seeded database for hermetic E2E runs
+      RECIPE_SOURCE: db
 
     steps:
       - name: Checkout code

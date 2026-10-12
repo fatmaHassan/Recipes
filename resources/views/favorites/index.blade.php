@@ -11,7 +11,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($favorites as $savedRecipe)
                         @php
-                            $recipe = $savedRecipe->recipe_data;
+                            $recipe = $savedRecipe->toMealDbArray();
                         @endphp
                         <div class="card card-hover overflow-hidden border-red-200">
                             @if(isset($recipe['strMealThumb']))

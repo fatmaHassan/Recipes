@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MealDbRecipePresenter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,5 +35,16 @@ class SavedRecipe extends Model
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class, 'recipe_internal_id');
+    }
+
+    public function toMealDbArray(): array
+    {
+        $recipe = $this->relationLoaded('recipe') ? $this->recipe : $this->recipe()->first();
+
+        if ($recipe) {
+            return MealDbRecipePresenter::details($recipe);
+        }
+
+        return $this->recipe_data ?? [];
     }
 }
