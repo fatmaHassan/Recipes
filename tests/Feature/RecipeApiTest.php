@@ -11,6 +11,13 @@ class RecipeApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['recipes.source' => 'api']);
+    }
+
     /**
      * Test recipe search by ingredients returns results.
      */
