@@ -297,35 +297,22 @@ class MealDbSyncTest extends TestCase
         $this->withHeader('X-Sync-Token', 'wrong')->postJson('/api/sync/mealdb')->assertStatus(403);
     }
 
-    public function test_sync_endpoint_starts_async_with_valid_token(): void
+    public function test_sync_endpoint_syncs_with_valid_token(): void
     {
         $this->fakeThemealdb();
         config(['services.mealdb_sync.token' => 'secret']);
 
         $this->withHeader('X-Sync-Token', 'secret')
             ->postJson('/api/sync/mealdb')
-            ->assertStatus(202)
-            ->assertJsonFragment(['message' => 'MealDB sync started.']);
-
-        // In tests the kernel terminates synchronously, so the afterResponse
-        // closure has already run and completed the sync.
-        $this->assertSame(2, Recipe::count());
-    }
-
-    public function test_sync_endpoint_wait_returns_stats(): void
-    {
-        $this->fakeThemealdb();
-        config(['services.mealdb_sync.token' => 'secret']);
-
-        $this->withHeader('X-Sync-Token', 'secret')
-            ->postJson('/api/sync/mealdb?wait=1')
             ->assertStatus(200)
             ->assertJsonFragment([
+                'message' => 'MealDB sync completed.',
                 'inserted' => 2,
                 'updated' => 0,
                 'skipped' => 0,
                 'deactivated' => 0,
                 'failed' => 0,
+                'relinked' => 0,
             ]);
 
         $this->assertSame(2, Recipe::count());
@@ -347,7 +334,7 @@ class MealDbSyncTest extends TestCase
         $this->fakeThemealdb();
         config(['services.mealdb_sync.token' => 'secret']);
 
-        $request = fn () => $this->withHeader('X-Sync-Token', 'secret')->postJson('/api/sync/mealdb?wait=1');
+        $request = fn () => $this->withHeader('X-Sync-Token', 'secret')->postJson('/api/sync/mealdb');
 
         $request();
         $request();
