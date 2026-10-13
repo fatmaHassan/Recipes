@@ -55,3 +55,13 @@ No lint script; `laravel/pint` is installed (`vendor/bin/pint`) but not enforced
 - Do not enable Brevo's "Activate for SMTP keys" (IP allowlisting) — Render's shared egress IPs change; it would lock out mail sending.
 - Brevo SMTP keys expire after 90 days of inactivity. Free tier: 300 emails/day.
 - Saving env vars in Render triggers an auto-redeploy; free-tier services also sleep after ~15 min idle and need ~50 s to cold-start (looks like "site down").
+- TheMealDB paid (supporter) key is live on prod: `THEMEALDB_BASE_URL` uses the **V2 path** (`https://www.themealdb.com/api/json/v2/<KEY>/`), `POOL_SIZE=10`, `BATCH_SLEEP_MS=0`, `RECIPE_SOURCE=db`. Never commit the paid key — `.env.example` keeps the free test key `1`.
+- TheMealDB terms (verified 2026-10): API content may be scraped/copied via official endpoints; artwork requires mentioning TheMealDB as data source ("must" for paid keys) — currently credited in repo/docs per owner's choice; sending debug pages is a secret-leak risk, so `APP_DEBUG=false` on prod.
+
+## Open threads (2026-10-13)
+
+The TheMealDB → own-DB migration is **complete and deployed** (normalized schema, sync service, repository seam, saved-recipe FK, seeder, blocking sync endpoint — cron verified 200 in ~10s). Remaining items:
+
+1. **Image mirroring** — awaiting TheMealDB's reply to a permission request (sent from supporter email). If approved: extend `MealDbSyncService` with a flag-controlled download→storage step (`THEMEALDB_MIRROR_IMAGES`), add `source_thumb_url` column, keep hotlinking as fallback. Images are currently **hotlinked** from TheMealDB's CDN (only remaining external dependency).
+2. **Area normalization** (optional) — ~190 TheMealDB submissions have empty/uncanonical areas (`United States`, `France` vs `American`, `French`); map them during sync if the cuisines page gets noisy.
+3. **Cheap freshness** (optional) — premium V2 `latest.php` (10 newest meals) could replace full letter enumeration for daily checks.
