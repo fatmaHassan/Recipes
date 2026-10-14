@@ -127,6 +127,8 @@ class MealDbSyncTest extends TestCase
             'deactivated' => 0,
             'failed' => 0,
             'relinked' => 0,
+            'images_mirrored' => 0,
+            'images_failed' => 0,
         ], $stats);
 
         $recipe = Recipe::where('external_id', '52772')->first();

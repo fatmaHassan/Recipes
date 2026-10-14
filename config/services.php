@@ -40,6 +40,15 @@ return [
         'api_key' => env('THEMEALDB_API_KEY', '1'),
         'pool_size' => env('THEMEALDB_POOL_SIZE', 10),
         'batch_sleep_ms' => env('THEMEALDB_BATCH_SLEEP_MS', 0),
+        // Download recipe images into storage during sync (permission granted
+        // by TheMealDB). Off = images keep being hotlinked from their CDN;
+        // failed downloads always fall back to hotlinking as well.
+        'mirror_images' => env('THEMEALDB_MIRROR_IMAGES', false),
+        // Disk for mirrored images. "public" needs `php artisan storage:link`;
+        // an S3-compatible disk (e.g. Supabase Storage) is recommended on
+        // Render, whose filesystem is wiped on every deploy.
+        'image_disk' => env('THEMEALDB_IMAGE_DISK', 'public'),
+        'image_pool_size' => env('THEMEALDB_IMAGE_POOL_SIZE', 10),
     ],
 
     'mealdb_sync' => [

@@ -18,6 +18,7 @@ class Recipe extends Model
         'area',
         'instructions',
         'thumb_url',
+        'source_thumb_url',
         'tags',
         'youtube_url',
         'source_url',
