@@ -31,6 +31,11 @@ class MealDbSyncCommand extends Command
             ."{$stats['skipped']} skipped, {$stats['deactivated']} deactivated, "
             ."{$stats['failed']} failed, {$stats['relinked']} relinked.");
 
+        if ($stats['images_mirrored'] > 0 || $stats['images_failed'] > 0) {
+            $this->info("Images: {$stats['images_mirrored']} mirrored, {$stats['images_failed']} failed "
+                .'(failed downloads keep hotlinking TheMealDB).');
+        }
+
         return self::SUCCESS;
     }
 }
