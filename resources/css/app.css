@@ -43,3 +43,8 @@
         @apply text-lg text-gray-600 mb-8;
     }
 }
+
+/* Hide Alpine-controlled elements until Alpine initializes. */
+[x-cloak] {
+    display: none !important;
+}

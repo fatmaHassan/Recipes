@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Support\CuisineFlags;
+use App\Support\IngredientCategories;
 use App\Support\IngredientMatcher;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -68,9 +69,34 @@ class RecipeService
      */
     public function getAllIngredients(): array
     {
-        $cacheKey = 'themealdb_all_ingredients';
+        return array_map(
+            fn (array $row) => $row['name'],
+            $this->ingredientList()
+        );
+    }
 
-        return Cache::remember($cacheKey, 86400, function () { // Cache for 24 hours
+    /**
+     * Get the full TheMealDB ingredient catalog with thumbnails and curated
+     * categories, for the browse/multi-select ingredients page.
+     *
+     * @return array<int, array{name: string, thumb: ?string, category: string}>
+     */
+    public function getIngredientCatalog(): array
+    {
+        return array_map(
+            fn (array $row) => $row + ['category' => IngredientCategories::forName($row['name'])],
+            $this->ingredientList()
+        );
+    }
+
+    /**
+     * Raw TheMealDB ingredient rows (name + thumbnail), cached for 24 hours.
+     *
+     * @return array<int, array{name: string, thumb: ?string}>
+     */
+    private function ingredientList(): array
+    {
+        return Cache::remember('themealdb_ingredient_catalog', 86400, function () {
             try {
                 $response = Http::get($this->baseUrl.'list.php', [
                     'i' => 'list',
@@ -78,15 +104,25 @@ class RecipeService
                 ]);
 
                 if ($response->successful()) {
-                    $data = $response->json();
-                    $meals = $data['meals'] ?? [];
+                    $meals = $response->json('meals') ?? [];
 
-                    // Extract ingredient names
-                    $ingredients = array_map(function ($item) {
-                        return $item['strIngredient'] ?? '';
-                    }, $meals);
+                    $rows = [];
+                    foreach ($meals as $item) {
+                        $name = trim($item['strIngredient'] ?? '');
 
-                    return array_filter($ingredients); // Remove empty values
+                        if ($name === '') {
+                            continue;
+                        }
+
+                        $rows[] = [
+                            'name' => $name,
+                            'thumb' => $item['strThumb'] ?? null,
+                        ];
+                    }
+
+                    usort($rows, fn (array $a, array $b) => strcasecmp($a['name'], $b['name']));
+
+                    return $rows;
                 }
 
                 Log::warning('TheMealDB API request failed for ingredients list', [

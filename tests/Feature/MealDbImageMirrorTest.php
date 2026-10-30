@@ -72,7 +72,7 @@ class MealDbImageMirrorTest extends TestCase
             'services.themealdb.image_pool_size' => 2,
         ]);
         // Storage::fake() does not copy the disk's "url" config — pass it so
-        // generated URLs match production (absolute, APP_URL-based).
+        // the stored URLs' "/storage" prefix matches the real public disk.
         Storage::fake('public', ['url' => 'http://localhost/storage']);
     }
 
@@ -143,11 +143,12 @@ class MealDbImageMirrorTest extends TestCase
 
         $recipe = Recipe::where('external_id', '52772')->first();
         $this->assertSame('https://www.themealdb.com/images/media/meals/wvpsxx1468256321.jpg', $recipe->source_thumb_url);
-        $this->assertSame('http://localhost/storage/recipe-images/52772.jpg', $recipe->thumb_url);
+        // Local disks store root-relative URLs — correct on any host/port.
+        $this->assertSame('/storage/recipe-images/52772.jpg', $recipe->thumb_url);
 
         // Reads served from the DB display the stored copy.
         $details = app(DatabaseRecipeRepository::class)->getRecipeDetails('52772');
-        $this->assertSame('http://localhost/storage/recipe-images/52772.jpg', $details['strMealThumb']);
+        $this->assertSame('/storage/recipe-images/52772.jpg', $details['strMealThumb']);
     }
 
     public function test_sync_keeps_hotlinking_when_mirroring_disabled(): void
@@ -210,7 +211,7 @@ class MealDbImageMirrorTest extends TestCase
         // Both thumbs were downloaded exactly once, on the first sync.
         $this->assertSame([1, 1], array_values($this->imageRequestCounts));
         $this->assertSame(
-            'http://localhost/storage/recipe-images/52772.jpg',
+            '/storage/recipe-images/52772.jpg',
             Recipe::where('external_id', '52772')->value('thumb_url')
         );
     }
@@ -232,7 +233,30 @@ class MealDbImageMirrorTest extends TestCase
 
         $recipe = Recipe::where('external_id', '52772')->first();
         $this->assertSame($newUrl, $recipe->source_thumb_url);
-        $this->assertSame('http://localhost/storage/recipe-images/52772.jpg', $recipe->thumb_url);
+        $this->assertSame('/storage/recipe-images/52772.jpg', $recipe->thumb_url);
+    }
+
+    public function test_repair_sync_rewrites_legacy_absolute_urls_without_redownloading(): void
+    {
+        $this->fakeThemealdb();
+        $service = app(MealDbSyncService::class);
+        $service->sync();
+
+        // Simulate a legacy row whose thumb_url baked in a host:port (the
+        // pre-relative-URL format). The mirrored file is otherwise current.
+        Recipe::where('external_id', '52772')->update([
+            'thumb_url' => 'http://localhost:8000/storage/recipe-images/52772.jpg',
+        ]);
+        $this->imageRequestCounts = [];
+
+        $service->sync();
+
+        // The stale URL is repaired without re-downloading the image.
+        $this->assertSame([], $this->imageRequestCounts);
+        $this->assertSame(
+            '/storage/recipe-images/52772.jpg',
+            Recipe::where('external_id', '52772')->value('thumb_url')
+        );
     }
 
     public function test_partial_area_sync_mirrors_its_images(): void
