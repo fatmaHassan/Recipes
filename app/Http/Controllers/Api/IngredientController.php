@@ -31,21 +31,74 @@ class IngredientController extends Controller
     }
 
     /**
-     * Store a new ingredient
+     * Store a new ingredient.
+     *
+     * Accepts a single `name` or a `names[]` bulk payload validated against
+     * the TheMealDB ingredient catalog.
      */
     public function store(Request $request): JsonResponse
     {
+        if ($request->filled('names')) {
+            return $this->storeMany($request);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
         $ingredient = Auth::user()->ingredients()->create([
-            'name' => $request->name,
+            'name' => trim($request->name),
         ]);
 
         return response()->json([
             'message' => 'Ingredient added successfully',
             'ingredient' => $ingredient,
+        ], 201);
+    }
+
+    /**
+     * Bulk-store catalog ingredients, skipping ones the user already has.
+     */
+    private function storeMany(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'names' => 'required|array|min:1|max:50',
+            'names.*' => 'required|string|max:255',
+        ]);
+
+        $catalogNames = array_map('mb_strtolower', $this->recipeService->getAllIngredients());
+
+        foreach ($data['names'] as $name) {
+            if (! in_array(mb_strtolower(trim($name)), $catalogNames, true)) {
+                return response()->json([
+                    'message' => "\"{$name}\" is not in the TheMealDB ingredient catalog.",
+                ], 422);
+            }
+        }
+
+        $existing = Auth::user()->ingredients()
+            ->get()
+            ->map(fn (Ingredient $ingredient) => mb_strtolower($ingredient->name))
+            ->all();
+
+        $created = [];
+        foreach ($data['names'] as $name) {
+            $name = trim($name);
+            $key = mb_strtolower($name);
+
+            if (in_array($key, $existing, true) || in_array($key, array_map('mb_strtolower', array_column($created, 'name')), true)) {
+                continue;
+            }
+
+            $created[] = Auth::user()->ingredients()->create([
+                'name' => $name,
+            ])->only(['id', 'name']);
+        }
+
+        return response()->json([
+            'message' => count($created).' ingredient'.(count($created) === 1 ? '' : 's').' added successfully',
+            'created' => $created,
+            'skipped' => count($data['names']) - count($created),
         ], 201);
     }
 

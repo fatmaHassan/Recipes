@@ -226,10 +226,12 @@ class MealDbSyncService
         $url = $this->imageUrl($path);
 
         // The stored copy is current: same source URL, thumb_url already
-        // points at it, and the file survived on disk. No download needed.
+        // points at the stored copy (matched by path so a host-prefix drift
+        // — legacy absolute vs current relative URLs — still counts as the
+        // same copy), and the file survived on disk. No download needed.
         if ($existing !== null
             && $existing->source_thumb_url === $source
-            && $existing->thumb_url === $url
+            && $this->thumbUrlEndsWithPath($existing->thumb_url, $path)
             && Storage::disk($this->imageDisk)->exists($path)
         ) {
             return $url;
@@ -312,7 +314,35 @@ class MealDbSyncService
 
     private function imageUrl(string $path): string
     {
+        // Local disks serve images through the app itself, so store a
+        // root-relative URL: it stays correct across hosts and ports
+        // (localhost:8000, the e2e server, the prod domain). Remote disks
+        // (S3, Supabase Storage) expose stable absolute URLs — keep those.
+        // Read from the disk's config, not the adapter: Storage::fake()
+        // swaps the adapter without copying driver/url into it.
+        if (config("filesystems.disks.{$this->imageDisk}.driver") === 'local') {
+            $basePath = parse_url((string) config("filesystems.disks.{$this->imageDisk}.url"), PHP_URL_PATH) ?? '';
+
+            return rtrim($basePath, '/').'/'.$path;
+        }
+
         return (string) Storage::disk($this->imageDisk)->url($path);
+    }
+
+    /**
+     * Whether a stored thumb_url references the mirrored copy at $path
+     * regardless of host prefix — legacy syncs stored absolute APP_URL-based
+     * URLs, current syncs store root-relative ones.
+     */
+    private function thumbUrlEndsWithPath(?string $thumbUrl, string $path): bool
+    {
+        if ($thumbUrl === null || $thumbUrl === '') {
+            return false;
+        }
+
+        $urlPath = parse_url($thumbUrl, PHP_URL_PATH);
+
+        return is_string($urlPath) && str_ends_with($urlPath, '/'.$path);
     }
 
     private function isImageResponse(Response $response): bool
