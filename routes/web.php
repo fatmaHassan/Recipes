@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// About page
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+
 // Public cuisine routes
 Route::get('/cuisines', [CuisineController::class, 'index'])->name('cuisines.index');
 Route::get('/cuisines/{cuisine}', [CuisineController::class, 'show'])->name('cuisines.show');

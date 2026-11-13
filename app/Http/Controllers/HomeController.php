@@ -46,4 +46,9 @@ class HomeController extends Controller
 
         return view('home', compact('randomMeals', 'featuredCuisines'));
     }
+
+    public function about()
+    {
+        return view('about');
+    }
 }
