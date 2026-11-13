@@ -66,8 +66,8 @@
         <!-- Custom Theme CSS (loads after Tailwind to override) -->
         <link rel="stylesheet" href="{{ asset('css/custom-theme.css') }}">
     </head>
-    <body class="font-sans antialiased bg-white">
-        <div class="min-h-screen">
+    <body class="font-sans antialiased bg-white flex flex-col min-h-screen">
+        <div class="flex flex-col flex-1">
             @include('layouts.navigation')
             
             <!-- Add padding-top to account for fixed navigation -->
@@ -78,6 +78,14 @@
                 {{ $slot }}
             </main>
             </div>
+
+            <!-- Footer -->
+            <footer class="mt-auto border-t border-gray-200 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-600">
+                    <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
+                    <a href="{{ route('about') }}" class="hover:text-black transition duration-150 ease-in-out">{{ __('About') }}</a>
+                </div>
+            </footer>
         </div>
     </body>
 </html>
