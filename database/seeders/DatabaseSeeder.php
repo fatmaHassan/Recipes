@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
     {
         // Test user for local/dev and E2E (password: password)
         User::updateOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => env('E2E_EMAIL', 'test@example.com')],
             [
                 'name' => 'Test User',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(env('E2E_PASSWORD', 'password')),
                 'email_verified_at' => now(),
             ]
         );

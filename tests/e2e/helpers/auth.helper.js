@@ -1,56 +1,74 @@
 import { test as base } from '@playwright/test';
 
 /**
- * Extend the base test with authentication helpers
+ * The seeded E2E user, created by DatabaseSeeder into the `recipes_e2e`
+ * database (wiped + reseeded on every `npm run test:e2e` run).
+ *
+ * Single source of truth — never hardcode these credentials in specs.
+ * Override locally via E2E_EMAIL / E2E_PASSWORD if needed.
  */
-export const test = base.extend({
-  // Authenticated page fixture
-  authenticatedPage: async ({ page, baseURL }, use) => {
-    // Login before using the page
-    await page.goto('/login');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password');
-    await page.click('button[type="submit"]');
-    
-    // Wait for navigation after login
-    await page.waitForURL(/\/dashboard|\//);
-    
-    await use(page);
-  },
-});
+export const E2E_USER = {
+  name: 'Test User',
+  email: process.env.E2E_EMAIL ?? 'test@example.com',
+  password: process.env.E2E_PASSWORD ?? 'password',
+};
 
 /**
- * Helper function to login a user
+ * Generate a unique email for registration tests.
+ *
+ * Tests run fully parallel and share one seeded database, so every
+ * registration must use a fresh address to avoid "email already
+ * taken" collisions between workers and across re-runs.
  */
-export async function login(page, email = 'test@example.com', password = 'password') {
+export function uniqueEmail(prefix = 'e2e') {
+  return `${prefix}+${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
+}
+
+/**
+ * Login a user. Success redirects to /my-recipes, so we wait for that
+ * URL specifically (a generic / pattern matches every URL and would
+ * resolve immediately without actually waiting for the redirect).
+ */
+export async function login(page, email = E2E_USER.email, password = E2E_USER.password) {
   await page.goto('/login');
-  
-  // Wait for the login form to be ready
+
   await page.waitForSelector('input[name="email"]', { state: 'visible' });
-  
-  // Fill in the form
+
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
-  
-  // Click the login button (using getByRole for better reliability)
+
   await page.getByRole('button', { name: /log in/i }).click();
-  
-  // Wait for navigation - could go to dashboard or home
-  await page.waitForURL(/\/dashboard|\//, { timeout: 10000 });
-  
-  // Wait for page to be ready (use domcontentloaded instead of networkidle for better reliability)
+
+  await page.waitForURL('**/my-recipes', { timeout: 10000 });
   await page.waitForLoadState('domcontentloaded');
 }
 
 /**
- * Helper function to register a new user
+ * Register a new user. Success redirects to /dashboard.
+ * Defaults to a unique email — pass your own only if you have a reason.
  */
-export async function register(page, name = 'Test User', email = 'test@example.com', password = 'password') {
+export async function register(page, { name = 'New User', email = uniqueEmail(), password = 'password' } = {}) {
   await page.goto('/register');
+
   await page.fill('input[name="name"]', name);
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
   await page.fill('input[name="password_confirmation"]', password);
-  await page.click('button[type="submit"]');
-  await page.waitForURL(/\/dashboard|\//);
+
+  await page.getByRole('button', { name: /register/i }).click();
+
+  await page.waitForURL('**/dashboard', { timeout: 10000 });
+
+  return { name, email, password };
 }
+
+/**
+ * Extend the base test with an authenticated page fixture.
+ * Reuses the shared login() helper instead of duplicating it.
+ */
+export const test = base.extend({
+  authenticatedPage: async ({ page }, use) => {
+    await login(page);
+    await use(page);
+  },
+});

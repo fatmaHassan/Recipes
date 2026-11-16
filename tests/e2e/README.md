@@ -1,153 +1,76 @@
 # Playwright E2E Tests
 
-This directory contains end-to-end tests using Playwright.
+End-to-end tests using Playwright against a dedicated, disposable
+`recipes_e2e` database. The dev `recipes` database is never touched.
 
-## Running Tests
-
-### Run all tests
-```bash
-npm run test:e2e
-```
-
-The E2E scripts reset and seed the dedicated `recipes_e2e` database before
-running. They do not use the development `recipes` database.
-
-### Run tests in UI mode (interactive)
-```bash
-npm run test:e2e:ui
-```
-
-### Run tests in headed mode (see browser)
-```bash
-npm run test:e2e:headed
-```
-
-### Run tests in debug mode
-```bash
-npm run test:e2e:debug
-```
-
-### Run specific test file
-```bash
-npx playwright test tests/e2e/example.spec.js
-```
-
-### Run tests in specific browser
-```bash
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
-```
-
-## Test Structure
-
-- `example.spec.js` - Basic home page tests
-- `dashboard.spec.js` - Dashboard tests (requires authentication)
-- `helpers/auth.helper.js` - Authentication helper functions
-
-## Authentication Helpers
-
-Use the authentication helpers for tests that require login:
-
-```javascript
-import { login, register } from './helpers/auth.helper.js';
-
-test('my test', async ({ page }) => {
-  await login(page, 'test@example.com', 'password');
-  // Your test code here
-});
-```
-
-Or use the authenticated page fixture:
-
-```javascript
-import { test } from './helpers/auth.helper.js';
-
-test('my test', async ({ authenticatedPage }) => {
-  // authenticatedPage is already logged in
-  await authenticatedPage.goto('/dashboard');
-});
-```
-
-## Setup
-
-The Playwright suite uses a separate database named `recipes_e2e`. Create a
-local E2E environment file once:
+## First-time setup (once)
 
 ```bash
-cp .env.e2e.example .env.e2e
+cp .env.e2e.example .env.e2e      # adjust DB_* for your machine; file is gitignored
 php artisan key:generate --env=e2e
+createdb recipes_e2e              # skip if it already exists
+npm run test:e2e:setup            # migrate + seed
 ```
 
-Adjust the PostgreSQL username, password, host, and port in `.env.e2e` if
-they differ on your machine. Then create the database if it does not exist:
-
-```bash
-createdb recipes_e2e
-```
-
-Before each Playwright run, the test command runs:
-
-```bash
-php artisan migrate:fresh --seed --env=e2e
-```
-
-This command is intentionally destructive, but it targets only `recipes_e2e`.
-Never run it without `--env=e2e` when you need to preserve development data.
-
-This will create a test user with:
+The seeder creates the shared test user (defaults shown; configurable via
+`E2E_EMAIL` / `E2E_PASSWORD` in `.env.e2e`):
 - Email: `test@example.com`
 - Password: `password`
-- Email verified: Yes
+- Email verified: yes
 
-The seeded user is shared by authenticated page tests. Registration tests
-should use a unique email address instead of this shared fixture.
+## Running tests
 
-## Configuration
-
-Tests are configured in `playwright.config.js`:
-- Base URL: `http://localhost:8000`
-- Automatically starts Laravel server before tests
-- Tests run in Chromium, Firefox, and WebKit browsers
-- Screenshots and videos captured on failure
-
-## Writing Tests
-
-### Basic Test Example
-
-```javascript
-import { test, expect } from '@playwright/test';
-
-test('should do something', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('h1')).toBeVisible();
-});
+```bash
+npm run test:e2e                  # 1. re-seeds recipes_e2e  2. runs ALL tests
+npm run test:e2e:ui               # seeds + interactive UI mode
+npm run test:e2e:headed           # seeds + visible browser
+npm run test:e2e:debug            # seeds + Playwright inspector
 ```
 
-### Using Selectors
+Every `npm run test:e2e:*` script re-seeds first (`migrate:fresh --seed
+--env=e2e`). Intentionally destructive — but only for `recipes_e2e`.
+Never run it without `--env=e2e` when dev data matters.
 
-Playwright recommends using semantic selectors:
+### Faster targeted runs (assumes DB is already seeded)
 
-```javascript
-// Good - semantic selectors
-await page.getByRole('button', { name: 'Submit' }).click();
-await page.getByLabel('Email').fill('test@example.com');
-await page.getByText('Welcome').isVisible();
-
-// Also works - CSS selectors
-await page.locator('button[type="submit"]').click();
+```bash
+npx playwright test                                             # all tests, no re-seed
+npx playwright test tests/e2e/login.spec.js                     # one file
+npx playwright test tests/e2e/login.spec.js --grep "wrong"      # tests matching a title
+npx playwright test --grep @smoke                               # PR smoke suite
+npx playwright test --project=chromium                          # chromium | firefox | webkit
 ```
 
-## Debugging
+Raw `npx playwright test` does **not** re-seed. It still auto-starts the
+Laravel server (`php artisan serve --env=e2e`, reuses a running one
+outside CI).
 
-1. Use `npm run test:e2e:debug` to run tests in debug mode
-2. Use `page.pause()` in your test to pause execution
-3. Use Playwright Inspector: `PWDEBUG=1 npm run test:e2e`
-4. Check screenshots and videos in `test-results/` directory
+## Test structure
 
-## CI/CD
+- `home-guest.spec.js` — public home page
+- `login.spec.js`, `register.spec.js` — auth flows (rendering + functional)
+- `dashboard.spec.js` — authenticated dashboard (uses the login helper)
+- `custom-recipes.spec.js` — custom recipes CRUD
+- `pages/` — Page Object Model classes (one per page under test)
+- `helpers/auth.helper.js` — seeded credentials (`E2E_USER`), `login()`,
+  `register()`, `uniqueEmail()`
 
-Tests are configured to:
-- Retry failed tests 2 times in CI
-- Run with 1 worker in CI (sequential)
-- Generate HTML reports
+## Authentication helpers
+
+```javascript
+// Login as the seeded user — no hardcoded credentials needed
+await login(page);
+
+// Register a fresh user — unique email by default (parallel-safe)
+await register(page, { name: 'New User' });
+```
+
+Registration tests must never use the shared seeded email; rely on
+`uniqueEmail()` from the helper.
+
+## Configuration & CI
+
+`playwright.config.js`: base URL `http://localhost:8000`, auto-starts the
+server, runs Chromium/Firefox/WebKit, captures screenshot + video + trace
+on failure. CI: chromium only, `@smoke` on PRs, full suite on pushes,
+retries ×2, 1 worker, HTML report.
